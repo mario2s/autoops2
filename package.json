@@ -1,0 +1,19 @@
+{
+  "name": "autoops2",
+  "version": "1.0.0",
+  "description": "Auto Operations: Next.js + React + Expo",
+  "license": "ISC",
+  "author": "Mario Diankov",
+  "private": true,
+  "workspaces": [
+    "autoops-web",
+    "autoops-mobile"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w autoops-web\" \"npm run start -w autoops-mobile\"",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
