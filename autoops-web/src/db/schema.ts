@@ -105,6 +105,7 @@ export const orders = pgTable(
       .references(() => vehicles.id),
     status: orderStatusEnum('status').notNull().default('booked'),
     deadline: timestamp('deadline').notNull(),
+    completed_at: timestamp('completed_at'),
     created_at: timestamp('created_at').notNull().default(sql`now()`),
     updated_at: timestamp('updated_at').notNull().default(sql`now()`),
   },
