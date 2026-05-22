@@ -259,12 +259,12 @@ export default function OrderForm({
 
   // ── Deadline state
   const [deadlineDate, setDeadlineDate] = useState(() => {
-    if (!initialData) return '';
-    return initialData.deadline.toISOString().slice(0, 10);
+    const d = initialData ? initialData.deadline : (() => { const n = new Date(); n.setDate(n.getDate() + 1); n.setHours(n.getHours() + 1); return n; })();
+    return d.toISOString().slice(0, 10);
   });
   const [deadlineTime, setDeadlineTime] = useState(() => {
-    if (!initialData) return '';
-    return initialData.deadline.toISOString().slice(11, 16);
+    const d = initialData ? initialData.deadline : (() => { const n = new Date(); n.setDate(n.getDate() + 1); n.setHours(n.getHours() + 1); return n; })();
+    return d.toISOString().slice(11, 16);
   });
   const pastDeadline =
     deadlineDate &&
@@ -352,7 +352,7 @@ export default function OrderForm({
     setParts; // just touch to avoid lint warning
     setServices((prev) => [
       ...prev,
-      { key: uid(), description: '', costType: 'hourly', hours: '', rate: String(hourlyRate), fixedAmount: '' },
+      { key: uid(), description: '', costType: 'fixed', hours: '', rate: String(hourlyRate), fixedAmount: '' },
     ]);
   }
 
@@ -690,6 +690,7 @@ export default function OrderForm({
                       row={row}
                       onChange={(patch) => updateService(row.key, patch)}
                       onRemove={() => removeService(row.key)}
+                      rateReadOnly
                     />
                   ))}
                 </div>
@@ -935,9 +936,10 @@ type ServiceRowInputProps = {
   row: ServiceRow;
   onChange: (patch: Partial<ServiceRow>) => void;
   onRemove: () => void;
+  rateReadOnly?: boolean;
 };
 
-function ServiceRowInput({ row, onChange, onRemove }: ServiceRowInputProps) {
+function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowInputProps) {
   const hourly = row.costType === 'hourly';
   const total = serviceTotal(row);
 
@@ -991,12 +993,13 @@ function ServiceRowInput({ row, onChange, onRemove }: ServiceRowInputProps) {
       <input
         type="number"
         value={row.rate}
-        onChange={(e) => onChange({ rate: e.target.value })}
+        onChange={(e) => !rateReadOnly && onChange({ rate: e.target.value })}
         min="0"
         step="0.01"
         placeholder="0.00"
         disabled={!hourly}
-        className={smallInputCls}
+        readOnly={rateReadOnly}
+        className={`${smallInputCls} ${rateReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
 
       {/* Total — editable only for fixed */}
