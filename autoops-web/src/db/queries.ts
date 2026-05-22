@@ -1,6 +1,6 @@
 import { db } from './index';
-import { orders, users, clients, vehicles, parts_catalog, order_parts, order_services } from './schema';
-import { eq, and, sql, desc, count, ilike, or } from 'drizzle-orm';
+import { orders, users, clients, vehicles, parts_catalog, order_parts, order_services, app_settings } from './schema';
+import { eq, and, sql, desc, count, ilike, or, ne, gte } from 'drizzle-orm';
 
 export type OrderStatus = 'booked' | 'in_progress' | 'awaiting' | 'payment' | 'done';
 
@@ -291,6 +291,81 @@ export async function getVehicleById(id: string) {
   return rows[0] ?? null;
 }
 
+export type InsightsTopItem = { name: string; revenue: number };
+
+export type InsightsData = {
+  ytdRevenue: number;
+  backlogRevenue: number;
+  topClients: InsightsTopItem[];
+  topServices: InsightsTopItem[];
+  topParts: InsightsTopItem[];
+};
+
+export async function getInsightsData(): Promise<InsightsData> {
+  const ytdStart = new Date(new Date().getFullYear(), 0, 1);
+
+  const orderTotalExpr = sql<string>`COALESCE((
+    SELECT SUM(op.qty::numeric * op.unit_price::numeric)
+    FROM order_parts op WHERE op.order_id = ${orders.id}
+  ), 0) + COALESCE((
+    SELECT SUM(CASE WHEN os.cost_type = 'hourly'
+      THEN os.hours::numeric * os.rate::numeric
+      ELSE os.fixed_amount::numeric END)
+    FROM order_services os WHERE os.order_id = ${orders.id}
+  ), 0)`;
+
+  const [ytdRow] = await db
+    .select({ total: sql<string>`COALESCE(SUM(${orderTotalExpr}), 0)` })
+    .from(orders)
+    .where(and(eq(orders.status, 'done'), gte(orders.created_at, ytdStart)));
+
+  const [backlogRow] = await db
+    .select({ total: sql<string>`COALESCE(SUM(${orderTotalExpr}), 0)` })
+    .from(orders)
+    .where(ne(orders.status, 'done'));
+
+  const clientRevenue = sql<string>`SUM(${orderTotalExpr})`;
+  const topClientsRows = await db
+    .select({ name: clients.name, revenue: clientRevenue })
+    .from(orders)
+    .innerJoin(clients, eq(orders.client_id, clients.id))
+    .where(and(eq(orders.status, 'done'), gte(orders.created_at, ytdStart)))
+    .groupBy(orders.client_id, clients.name)
+    .orderBy(desc(clientRevenue))
+    .limit(5);
+
+  const serviceCost = sql<string>`SUM(CASE WHEN ${order_services.cost_type} = 'hourly'
+    THEN COALESCE(${order_services.hours}::numeric, 0) * COALESCE(${order_services.rate}::numeric, 0)
+    ELSE COALESCE(${order_services.fixed_amount}::numeric, 0) END)`;
+  const topServicesRows = await db
+    .select({ name: order_services.description, revenue: serviceCost })
+    .from(order_services)
+    .innerJoin(orders, eq(order_services.order_id, orders.id))
+    .where(and(eq(orders.status, 'done'), gte(orders.created_at, ytdStart)))
+    .groupBy(order_services.description)
+    .orderBy(desc(serviceCost))
+    .limit(5);
+
+  const partRevenue = sql<string>`SUM(${order_parts.qty}::numeric * ${order_parts.unit_price}::numeric)`;
+  const topPartsRows = await db
+    .select({ name: parts_catalog.name, revenue: partRevenue })
+    .from(order_parts)
+    .innerJoin(orders, eq(order_parts.order_id, orders.id))
+    .innerJoin(parts_catalog, eq(order_parts.catalog_part_id, parts_catalog.id))
+    .where(and(eq(orders.status, 'done'), gte(orders.created_at, ytdStart)))
+    .groupBy(order_parts.catalog_part_id, parts_catalog.name)
+    .orderBy(desc(partRevenue))
+    .limit(5);
+
+  return {
+    ytdRevenue: parseFloat(ytdRow.total),
+    backlogRevenue: parseFloat(backlogRow.total),
+    topClients: topClientsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
+    topServices: topServicesRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
+    topParts: topPartsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
+  };
+}
+
 export async function getVehiclesPage({
   search,
   page,
@@ -329,4 +404,49 @@ export async function getVehiclesPage({
     .offset((page - 1) * pageSize);
 
   return { vehicles: rows, total: Number(total) };
+}
+
+export type MechanicRow = {
+  id: string;
+  name: string;
+  email: string;
+  status: 'pending' | 'active' | 'inactive';
+  createdAt: string;
+  orderCount: number;
+};
+
+export async function getMechanicsForAdmin(): Promise<MechanicRow[]> {
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      status: users.status,
+      createdAt: users.created_at,
+      orderCount: sql<string>`(SELECT COUNT(*)::int FROM orders o WHERE o.mechanic_id = ${users.id})`,
+    })
+    .from(users)
+    .where(eq(users.role, 'mechanic'))
+    .orderBy(
+      sql`CASE ${users.status} WHEN 'pending' THEN 0 WHEN 'active' THEN 1 ELSE 2 END`,
+      desc(users.created_at),
+    );
+
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    email: r.email,
+    status: r.status as 'pending' | 'active' | 'inactive',
+    createdAt: r.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    orderCount: Number(r.orderCount),
+  }));
+}
+
+export async function getAppSetting(key: string): Promise<string | null> {
+  const rows = await db
+    .select({ value: app_settings.value })
+    .from(app_settings)
+    .where(eq(app_settings.key, key))
+    .limit(1);
+  return rows[0]?.value ?? null;
 }
