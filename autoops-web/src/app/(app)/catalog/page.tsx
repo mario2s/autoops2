@@ -81,7 +81,7 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_150px_28px]' : 'grid-cols-[1fr_180px_150px]'}`}>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_150px_40px]' : 'grid-cols-[1fr_180px_150px]'}`}>
           {['Part name', 'Created by', 'Date added', ...(isAdmin ? [''] : [])].map((col, i) => (
             <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
@@ -92,7 +92,7 @@ export default async function CatalogPage({
           result.parts.map((part) => (
             <div
               key={part.id}
-              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_150px_28px]' : 'sm:grid-cols-[1fr_180px_150px]'}`}
+              className={`grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_150px_40px]' : 'sm:grid-cols-[1fr_180px_150px]'}`}
             >
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{part.name}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{part.createdBy}</div>
@@ -109,7 +109,7 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_28px]' : 'grid-cols-[1fr_150px_220px_80px]'}`}>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_40px]' : 'grid-cols-[1fr_150px_220px_80px]'}`}>
           {['Name', 'Phone', 'Email', 'Orders', ...(isAdmin ? [''] : [])].map((col, i) => (
             <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
@@ -120,13 +120,14 @@ export default async function CatalogPage({
           result.clients.map((client) => (
             <div
               key={client.id}
-              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_28px]' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
+              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_40px]' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
             >
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{client.name}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.phone ?? '—'}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.email ?? '—'}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.orderCount}</div>
-              {isAdmin && <DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" />}
+              <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />
+              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">{client.name}</div>
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.phone ?? '—'}</div>
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.email ?? '—'}</div>
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.orderCount}</div>
+              {isAdmin && <div className="relative z-10"><DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" /></div>}
             </div>
           ))
         )}
@@ -138,7 +139,7 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_160px_28px]' : 'grid-cols-[1fr_180px_160px]'}`}>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_160px_40px]' : 'grid-cols-[1fr_180px_160px]'}`}>
           {['Plate / Description', 'Client', 'Make / Model', ...(isAdmin ? [''] : [])].map((col, i) => (
             <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
@@ -149,16 +150,17 @@ export default async function CatalogPage({
           result.vehicles.map((v) => (
             <div
               key={v.id}
-              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_28px]' : 'sm:grid-cols-[1fr_180px_160px]'}`}
+              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_40px]' : 'sm:grid-cols-[1fr_180px_160px]'}`}
             >
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+              <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />
+              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">
                 {v.licensePlate ?? v.description}
               </div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{v.clientName}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{v.clientName}</div>
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">
                 {[v.make, v.model].filter(Boolean).join(' ') || '—'}
               </div>
-              {isAdmin && <DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" />}
+              {isAdmin && <div className="relative z-10"><DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" /></div>}
             </div>
           ))
         )}

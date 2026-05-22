@@ -256,6 +256,41 @@ export async function getOrderForEdit(orderId: string): Promise<OrderForEdit | n
   };
 }
 
+export async function getClientById(id: string) {
+  const rows = await db
+    .select({
+      id: clients.id,
+      name: clients.name,
+      phone: clients.phone,
+      email: clients.email,
+      notes: clients.notes,
+    })
+    .from(clients)
+    .where(eq(clients.id, id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getVehicleById(id: string) {
+  const rows = await db
+    .select({
+      id: vehicles.id,
+      clientId: vehicles.client_id,
+      clientName: clients.name,
+      licensePlate: vehicles.license_plate,
+      description: vehicles.description,
+      make: vehicles.make,
+      model: vehicles.model,
+      year: vehicles.year,
+      vin: vehicles.vin,
+    })
+    .from(vehicles)
+    .innerJoin(clients, eq(vehicles.client_id, clients.id))
+    .where(eq(vehicles.id, id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function getVehiclesPage({
   search,
   page,

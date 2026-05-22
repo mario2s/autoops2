@@ -198,6 +198,64 @@ export async function createVehicleAction(
   }
 }
 
+export async function updateClientAction(
+  id: string,
+  data: { name: string; phone: string; email: string; notes: string },
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (!data.name.trim()) return { error: 'Name is required' };
+
+  try {
+    await db
+      .update(clients)
+      .set({
+        name: data.name.trim(),
+        phone: data.phone.trim() || null,
+        email: data.email.trim() || null,
+        notes: data.notes.trim() || null,
+        updated_at: new Date(),
+      })
+      .where(eq(clients.id, id));
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to update client' };
+  }
+}
+
+export async function updateVehicleAction(
+  id: string,
+  data: VehicleData,
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+
+  if (!data.plate.trim() && !data.description.trim()) {
+    return { error: 'License plate or description is required' };
+  }
+
+  try {
+    await db
+      .update(vehicles)
+      .set({
+        client_id: data.clientId,
+        license_plate: data.plate.trim() || null,
+        description: data.description.trim() || null,
+        make: data.make.trim() || null,
+        model: data.model.trim() || null,
+        year: data.year ? (parseInt(data.year, 10) as unknown as number) : null,
+        vin: data.vin.trim() || null,
+        updated_at: new Date(),
+      })
+      .where(eq(vehicles.id, id));
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to update vehicle' };
+  }
+}
+
 export async function createClientAction(data: {
   name: string;
   phone: string;

@@ -37,13 +37,13 @@ export default function DeleteButton({ action, label = 'item' }: Props) {
       <button
         onClick={(e) => { stop(e); setState(state === 'confirming' ? 'idle' : 'confirming'); setErrorMsg(''); }}
         aria-label={`Delete ${label}`}
-        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${
+        className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
           state === 'confirming'
             ? 'text-red-500 bg-red-50 dark:bg-red-950/40'
             : 'text-zinc-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30'
         }`}
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+        <svg width="20" height="20" viewBox="0 0 14 14" fill="none" aria-hidden>
           <path d="M2.5 4h9M5.5 4V2.5h3V4M6 6.5v4M8 6.5v4M3.5 4l.7 7.5h5.6L10.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
