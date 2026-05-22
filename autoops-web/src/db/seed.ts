@@ -2,17 +2,59 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { sql } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
-import { clients, users, app_settings, parts_catalog } from './schema';
+import { faker } from '@faker-js/faker';
+import { clients, users, app_settings, parts_catalog, vehicles } from './schema';
 
 export const UNKNOWN_CLIENT_ID = '00000000-0000-0000-0000-000000000001';
 
+// Weights for 1–5 vehicles per client: heavy at 1, drops sharply
+const VEHICLE_COUNT_WEIGHTS = [60, 22, 10, 5, 3]; // sums to 100
+
+function weightedVehicleCount(): number {
+  const rand = Math.random() * 100;
+  let cumulative = 0;
+  for (let i = 0; i < VEHICLE_COUNT_WEIGHTS.length; i++) {
+    cumulative += VEHICLE_COUNT_WEIGHTS[i];
+    if (rand < cumulative) return i + 1;
+  }
+  return 1;
+}
+
+const MAKES_MODELS: Record<string, string[]> = {
+  Toyota:     ['Corolla', 'Camry', 'Yaris', 'RAV4', 'Land Cruiser'],
+  Volkswagen: ['Golf', 'Passat', 'Polo', 'Tiguan', 'Touareg'],
+  BMW:        ['3 Series', '5 Series', 'X3', 'X5', '1 Series'],
+  Mercedes:   ['C-Class', 'E-Class', 'A-Class', 'GLC', 'Sprinter'],
+  Ford:       ['Focus', 'Fiesta', 'Mondeo', 'Kuga', 'Transit'],
+  Opel:       ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira'],
+  Renault:    ['Clio', 'Megane', 'Kadjar', 'Duster', 'Scenic'],
+  Peugeot:    ['208', '308', '3008', '5008', '508'],
+  Skoda:      ['Octavia', 'Fabia', 'Superb', 'Karoq', 'Kodiaq'],
+  Audi:       ['A3', 'A4', 'A6', 'Q3', 'Q5'],
+};
+
+const ALL_MAKES = Object.keys(MAKES_MODELS);
+
+function randomVehicle(clientId: string) {
+  const make = faker.helpers.arrayElement(ALL_MAKES);
+  const model = faker.helpers.arrayElement(MAKES_MODELS[make]);
+  return {
+    client_id: clientId,
+    license_plate: faker.vehicle.vrm().toUpperCase(),
+    make,
+    model,
+    year: faker.number.int({ min: 1995, max: 2024 }) as unknown as number,
+    vin: faker.vehicle.vin(),
+  };
+}
+
 const REAL_USERS = [
   { name: 'Steve',     email: 'steve@gmail.com',                       password: 'pass123', role: 'admin'    as const },
-  { name: 'Peter',     email: 'peter@gmail.com',            password: 'pass123', role: 'mechanic' as const },
-  { name: 'Dave',      email: 'dave@gmail.com',             password: 'pass123', role: 'mechanic' as const },
-  { name: 'John',      email: 'john@gmail.com',             password: 'pass123', role: 'mechanic' as const },
-  { name: 'Nick',      email: 'nick@gmail.com',             password: 'pass123', role: 'mechanic' as const },
-  { name: 'TestAdmin', email: 'testadmin@autoops.internal', password: 'test123', role: 'admin'    as const },
+  { name: 'Peter',     email: 'peter@gmail.com',                       password: 'pass123', role: 'mechanic' as const },
+  { name: 'Dave',      email: 'dave@gmail.com',                        password: 'pass123', role: 'mechanic' as const },
+  { name: 'John',      email: 'john@gmail.com',                        password: 'pass123', role: 'mechanic' as const },
+  { name: 'Nick',      email: 'nick@gmail.com',                        password: 'pass123', role: 'mechanic' as const },
+  { name: 'TestAdmin', email: 'testadmin@autoops.internal',            password: 'test123', role: 'admin'    as const },
 ];
 
 const PART_NAMES = [
@@ -45,11 +87,13 @@ async function seed() {
   const neonClient = neon(process.env.DATABASE_URL!);
   const db = drizzle(neonClient);
 
+  // Unknown client
   await db
     .insert(clients)
     .values({ id: UNKNOWN_CLIENT_ID, name: 'Unknown' })
     .onConflictDoNothing();
 
+  // Users
   const inserted = await db
     .insert(users)
     .values(
@@ -76,6 +120,7 @@ async function seed() {
 
   const testAdminId = inserted.find((u) => u.email === 'testadmin@autoops.internal')!.id;
 
+  // App settings
   await db
     .insert(app_settings)
     .values([
@@ -87,12 +132,49 @@ async function seed() {
       set: { value: sql`excluded.value`, updated_by: sql`excluded.updated_by` },
     });
 
+  // Parts catalog
   await db
     .insert(parts_catalog)
     .values(PART_NAMES.map((name) => ({ name, created_by: testAdminId })))
     .onConflictDoNothing();
 
-  console.log(`Seeded ${inserted.length} users and ${PART_NAMES.length} parts.`);
+  // 100 real clients with weighted 1–5 vehicles each
+  const clientRows = Array.from({ length: 100 }, () => ({
+    name: faker.person.fullName(),
+    phone: faker.phone.number({ style: 'international' }),
+    email: faker.internet.email(),
+  }));
+
+  const insertedClients = await db
+    .insert(clients)
+    .values(clientRows)
+    .onConflictDoNothing()
+    .returning({ id: clients.id });
+
+  const clientVehicles = insertedClients.flatMap((c) =>
+    Array.from({ length: weightedVehicleCount() }, () => randomVehicle(c.id)),
+  );
+
+  // 100 vehicles under Unknown client (no owner info — description only)
+  const unknownVehicles = Array.from({ length: 100 }, (_, i) => {
+    const make = faker.helpers.arrayElement(ALL_MAKES);
+    const model = faker.helpers.arrayElement(MAKES_MODELS[make]);
+    return {
+      client_id: UNKNOWN_CLIENT_ID,
+      description: `Unknown owner vehicle #${i + 1}`,
+      make,
+      model,
+      year: faker.number.int({ min: 1990, max: 2024 }) as unknown as number,
+    };
+  });
+
+  await db.insert(vehicles).values([...clientVehicles, ...unknownVehicles]);
+
+  console.log(
+    `Seeded ${inserted.length} users, ${insertedClients.length} clients, ` +
+    `${clientVehicles.length} client vehicles, ${unknownVehicles.length} unknown vehicles, ` +
+    `${PART_NAMES.length} parts.`,
+  );
 }
 
 seed().catch((err) => {
