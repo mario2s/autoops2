@@ -25,3 +25,9 @@ Full-stack app for automating car shop operations, order management, and busines
 
 - Modern, responsive design using Tailwind utility classes
 - Follow mobile-first breakpoints
+
+## Database Schema
+
+- Schema definition: `src/db/schema.ts`
+- Migrations: `src/db/migrations/`
+- Seed script: `src/db/seed.ts`
