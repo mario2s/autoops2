@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
-import { getOrdersPage, type OrderStatus } from '@/db/queries';
+import { getOrdersPage } from '@/db/queries';
 import DeleteButton from '@/components/DeleteButton';
 import { deleteOrderAction } from '@/actions/delete';
+import StatusBadge from '@/components/orders/StatusBadge';
 
 const PAGE_SIZE = 20;
 
@@ -15,22 +16,6 @@ const STATUS_PILLS = [
   { label: 'Done', value: 'done' },
   { label: 'All', value: 'all' },
 ] as const;
-
-const STATUS_BADGE: Record<string, string> = {
-  booked: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  in_progress: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  awaiting: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  payment: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-  done: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
-};
-
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  booked: 'Booked',
-  in_progress: 'In progress',
-  awaiting: 'Awaiting',
-  payment: 'Payment',
-  done: 'Done',
-};
 
 function formatDeadline(date: Date) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -166,12 +151,8 @@ export default async function DashboardPage({
                 </div>
 
                 {/* Status badge */}
-                <div className="sm:self-center">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[order.status] ?? ''}`}
-                  >
-                    {STATUS_LABEL[order.status] ?? order.status}
-                  </span>
+                <div className="relative z-10 sm:self-center">
+                  <StatusBadge orderId={order.id} status={order.status} />
                 </div>
 
                 {/* Deadline */}

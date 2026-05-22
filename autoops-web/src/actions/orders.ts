@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { orders, order_parts, order_services, parts_catalog, clients, vehicles } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -281,5 +282,65 @@ export async function createClientAction(data: {
   } catch (e) {
     console.error(e);
     return { error: 'Failed to create client' };
+  }
+}
+
+export async function updateOrderStatusAction(
+  orderId: string,
+  status: string,
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+
+  try {
+    await db
+      .update(orders)
+      .set({ status: status as 'booked' | 'in_progress' | 'awaiting' | 'payment' | 'done', updated_at: new Date() })
+      .where(eq(orders.id, orderId));
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to update status' };
+  }
+}
+
+export async function createCatalogPartAction(
+  name: string,
+): Promise<{ id: string; name: string } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (!name.trim()) return { error: 'Part name is required' };
+
+  try {
+    const [part] = await db
+      .insert(parts_catalog)
+      .values({ name: name.trim(), created_by: session.userId })
+      .returning({ id: parts_catalog.id, name: parts_catalog.name });
+    revalidatePath('/catalog');
+    return part;
+  } catch {
+    return { error: 'A part with this name already exists' };
+  }
+}
+
+export async function updateCatalogPartAction(
+  id: string,
+  name: string,
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (session.role !== 'admin') return { error: 'Unauthorized' };
+  if (!name.trim()) return { error: 'Part name is required' };
+
+  try {
+    await db
+      .update(parts_catalog)
+      .set({ name: name.trim(), updated_at: new Date() })
+      .where(eq(parts_catalog.id, id));
+    revalidatePath('/catalog');
+    return { success: true };
+  } catch {
+    return { error: 'A part with this name already exists' };
   }
 }

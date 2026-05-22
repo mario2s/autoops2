@@ -4,7 +4,9 @@ import { getSession } from '@/lib/session';
 import { getPartsCatalogPage, getClientsPage, getVehiclesPage } from '@/db/queries';
 import CatalogSearch from './catalog-search';
 import DeleteButton from '@/components/DeleteButton';
-import { deleteCatalogPartAction, deleteClientAction, deleteVehicleAction } from '@/actions/delete';
+import { deleteClientAction, deleteVehicleAction } from '@/actions/delete';
+import PartsCatalogTab from '@/components/catalog/PartsCatalogTab';
+import AddPartButton from '@/components/catalog/AddPartButton';
 
 const PAGE_SIZE = 20;
 
@@ -79,30 +81,7 @@ export default async function CatalogPage({
     const result = await getPartsCatalogPage({ search, page, pageSize: PAGE_SIZE });
     total = result.total;
 
-    content = (
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_150px_40px]' : 'grid-cols-[1fr_180px_150px]'}`}>
-          {['Part name', 'Created by', 'Date added', ...(isAdmin ? [''] : [])].map((col, i) => (
-            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
-          ))}
-        </div>
-        {result.parts.length === 0 ? (
-          <EmptyState message="No parts found" />
-        ) : (
-          result.parts.map((part) => (
-            <div
-              key={part.id}
-              className={`grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_150px_40px]' : 'sm:grid-cols-[1fr_180px_150px]'}`}
-            >
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{part.name}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{part.createdBy}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">{formatDate(part.createdAt)}</div>
-              {isAdmin && <DeleteButton action={deleteCatalogPartAction.bind(null, part.id)} label="part" />}
-            </div>
-          ))
-        )}
-      </div>
-    );
+    content = <PartsCatalogTab parts={result.parts} isAdmin={isAdmin} />;
   } else if (tab === 'clients') {
     const result = await getClientsPage({ search, page, pageSize: PAGE_SIZE });
     total = result.total;
@@ -184,12 +163,16 @@ export default async function CatalogPage({
             Manage parts, clients, and vehicles
           </p>
         </div>
-        <Link
-          href={`/${tab}/new`}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 text-sm font-medium hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors"
-        >
-          <span aria-hidden="true">+</span> {ADD_LABELS[tab]}
-        </Link>
+        {tab === 'parts' ? (
+          <AddPartButton />
+        ) : (
+          <Link
+            href={`/${tab}/new`}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 text-sm font-medium hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors"
+          >
+            <span aria-hidden="true">+</span> {ADD_LABELS[tab]}
+          </Link>
+        )}
       </div>
 
       {/* Sub-tabs */}
