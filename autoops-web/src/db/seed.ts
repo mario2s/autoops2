@@ -35,15 +35,30 @@ const MAKES_MODELS: Record<string, string[]> = {
 
 const ALL_MAKES = Object.keys(MAKES_MODELS);
 
+const COLORS = ['Red', 'White', 'Black', 'Silver', 'Blue', 'Grey', 'Green', 'Yellow', 'Brown', 'Orange'];
+
+function randomDescription(make: string, model: string, year: number): string {
+  const color = faker.helpers.arrayElement(COLORS);
+  const variant = faker.number.int({ min: 0, max: 3 });
+  if (variant === 0) return `${color} ${make}`;
+  if (variant === 1) return `${color} ${make} ${model}`;
+  if (variant === 2) return `${make} ${model}`;
+  return `${make} ${model} ${year}`;
+}
+
 function randomVehicle(clientId: string) {
   const make = faker.helpers.arrayElement(ALL_MAKES);
   const model = faker.helpers.arrayElement(MAKES_MODELS[make]);
+  const year = faker.number.int({ min: 1995, max: 2024 });
+  // Always has a plate; ~40% also get a description
+  const hasDescription = Math.random() < 0.4;
   return {
     client_id: clientId,
     license_plate: faker.vehicle.vrm().toUpperCase(),
+    ...(hasDescription ? { description: randomDescription(make, model, year) } : {}),
     make,
     model,
-    year: faker.number.int({ min: 1995, max: 2024 }) as unknown as number,
+    year: year as unknown as number,
     vin: faker.vehicle.vin(),
   };
 }
@@ -155,16 +170,19 @@ async function seed() {
     Array.from({ length: weightedVehicleCount() }, () => randomVehicle(c.id)),
   );
 
-  // 100 vehicles under Unknown client (no owner info — description only)
-  const unknownVehicles = Array.from({ length: 100 }, (_, i) => {
+  // 100 vehicles under Unknown client — always have a description; ~30% also have a plate
+  const unknownVehicles = Array.from({ length: 100 }, () => {
     const make = faker.helpers.arrayElement(ALL_MAKES);
     const model = faker.helpers.arrayElement(MAKES_MODELS[make]);
+    const year = faker.number.int({ min: 1990, max: 2024 });
+    const hasPlate = Math.random() < 0.3;
     return {
       client_id: UNKNOWN_CLIENT_ID,
-      description: `Unknown owner vehicle #${i + 1}`,
+      description: randomDescription(make, model, year),
+      ...(hasPlate ? { license_plate: faker.vehicle.vrm().toUpperCase() } : {}),
       make,
       model,
-      year: faker.number.int({ min: 1990, max: 2024 }) as unknown as number,
+      year: year as unknown as number,
     };
   });
 
