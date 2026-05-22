@@ -78,8 +78,14 @@ async function seed() {
 
   await db
     .insert(app_settings)
-    .values({ key: 'hourly_rate', value: '0.00', updated_by: testAdminId })
-    .onConflictDoNothing();
+    .values([
+      { key: 'hourly_rate', value: '30.00', updated_by: testAdminId },
+      { key: 'currency',    value: 'EUR',   updated_by: testAdminId },
+    ])
+    .onConflictDoUpdate({
+      target: app_settings.key,
+      set: { value: sql`excluded.value`, updated_by: sql`excluded.updated_by` },
+    });
 
   await db
     .insert(parts_catalog)
