@@ -69,16 +69,16 @@ export default function MechanicsTable({ mechanics }: { mechanics: Mechanic[] })
 
   if (mechanics.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 px-6 py-10 text-center">
+      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-6 py-10 text-center">
         <p className="text-sm text-zinc-400 dark:text-zinc-500">No mechanic accounts yet</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
       {/* Column headers — desktop only */}
-      <div className="hidden md:grid grid-cols-[1fr_140px_100px_120px_190px] gap-4 px-5 py-2.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+      <div className="hidden md:grid grid-cols-[1fr_140px_100px_120px_190px] gap-4 px-5 py-2.5 border-b border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900">
         <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Mechanic</span>
         <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Registered</span>
         <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Orders</span>
@@ -92,8 +92,8 @@ export default function MechanicsTable({ mechanics }: { mechanics: Mechanic[] })
         const isLoading = loading === mechanic.id;
 
         return (
-          <div key={mechanic.id} className="border-b border-zinc-200 dark:border-zinc-800 last:border-0">
-            <div className="flex flex-col md:grid md:grid-cols-[1fr_140px_100px_120px_190px] gap-x-4 gap-y-2 px-5 py-3.5 md:items-center hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
+          <div key={mechanic.id} className="border-b border-zinc-200 dark:border-zinc-700/60 last:border-0">
+            <div className="flex flex-col md:grid md:grid-cols-[1fr_140px_100px_120px_190px] gap-x-4 gap-y-2 px-5 py-3.5 md:items-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
               {/* Name + email */}
               <div>
                 <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{mechanic.name}</div>
