@@ -1,19 +1,18 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
 import { clients, users, app_settings, parts_catalog } from './schema';
 
 export const UNKNOWN_CLIENT_ID = '00000000-0000-0000-0000-000000000001';
-const SEED_ADMIN_ID = '00000000-0000-0000-0000-000000000002';
 
 const REAL_USERS = [
-  { name: 'Steve',     email: 'steve@gmail.com',               password: 'pass123', role: 'admin'    as const },
-  { name: 'Peter',     email: 'peter@gmail.com',               password: 'pass123', role: 'mechanic' as const },
-  { name: 'Dave',      email: 'dave@gmail.com',                password: 'pass123', role: 'mechanic' as const },
-  { name: 'John',      email: 'john@gmail.com',                password: 'pass123', role: 'mechanic' as const },
-  { name: 'Nick',      email: 'nick@gmail.com',                password: 'pass123', role: 'mechanic' as const },
-  { name: 'TestAdmin', email: 'testadmin@autoops.internal',    password: 'test123', role: 'admin'    as const },
+  { name: 'Steve',     email: 'steve@gmail.com',                       password: 'pass123', role: 'admin'    as const },
+  { name: 'Peter',     email: 'peter@gmail.com',            password: 'pass123', role: 'mechanic' as const },
+  { name: 'Dave',      email: 'dave@gmail.com',             password: 'pass123', role: 'mechanic' as const },
+  { name: 'John',      email: 'john@gmail.com',             password: 'pass123', role: 'mechanic' as const },
+  { name: 'Nick',      email: 'nick@gmail.com',             password: 'pass123', role: 'mechanic' as const },
+  { name: 'TestAdmin', email: 'testadmin@autoops.internal', password: 'test123', role: 'admin'    as const },
 ];
 
 const PART_NAMES = [
@@ -46,44 +45,24 @@ async function seed() {
   const neonClient = neon(process.env.DATABASE_URL!);
   const db = drizzle(neonClient);
 
-  // Unknown client
   await db
     .insert(clients)
     .values({ id: UNKNOWN_CLIENT_ID, name: 'Unknown' })
     .onConflictDoNothing();
 
-  // Seed admin — needed temporarily to satisfy app_settings FK before real users exist
-  await db
-    .insert(users)
-    .values({
-      id: SEED_ADMIN_ID,
-      name: 'Seed Admin',
-      email: 'seed-admin@autoops.internal',
-      password_hash: 'CHANGE_BEFORE_PRODUCTION',
-      role: 'admin',
-      status: 'inactive',
-    })
-    .onConflictDoNothing();
-
-  await db
-    .insert(app_settings)
-    .values({ key: 'hourly_rate', value: '0.00', updated_by: SEED_ADMIN_ID })
-    .onConflictDoNothing();
-
-  // Real users
-  const hashed = await Promise.all(
-    REAL_USERS.map(async (u) => ({
-      name: u.name,
-      email: u.email,
-      password_hash: await hash(u.password, 10),
-      role: u.role,
-      status: 'active' as const,
-    })),
-  );
-
   const inserted = await db
     .insert(users)
-    .values(hashed)
+    .values(
+      await Promise.all(
+        REAL_USERS.map(async (u) => ({
+          name: u.name,
+          email: u.email,
+          password_hash: await hash(u.password, 10),
+          role: u.role,
+          status: 'active' as const,
+        })),
+      ),
+    )
     .onConflictDoUpdate({
       target: users.email,
       set: {
@@ -95,24 +74,16 @@ async function seed() {
     })
     .returning({ id: users.id, email: users.email });
 
-  // Reassign all seed-admin FK references to Steve before deleting seed-admin
-  const steveId = inserted.find((u) => u.email === 'steve@gmail.com')!.id;
-  await db
-    .update(app_settings)
-    .set({ updated_by: steveId })
-    .where(eq(app_settings.updated_by, SEED_ADMIN_ID));
-  await db
-    .update(parts_catalog)
-    .set({ created_by: steveId })
-    .where(eq(parts_catalog.created_by, SEED_ADMIN_ID));
+  const testAdminId = inserted.find((u) => u.email === 'testadmin@autoops.internal')!.id;
 
-  // Remove seed-admin — no longer needed
-  await db.delete(users).where(eq(users.id, SEED_ADMIN_ID));
+  await db
+    .insert(app_settings)
+    .values({ key: 'hourly_rate', value: '0.00', updated_by: testAdminId })
+    .onConflictDoNothing();
 
-  // Parts catalog
   await db
     .insert(parts_catalog)
-    .values(PART_NAMES.map((name) => ({ name, created_by: steveId })))
+    .values(PART_NAMES.map((name) => ({ name, created_by: testAdminId })))
     .onConflictDoNothing();
 
   console.log(`Seeded ${inserted.length} users and ${PART_NAMES.length} parts.`);
