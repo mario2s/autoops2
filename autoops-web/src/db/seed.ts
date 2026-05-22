@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
 import { faker } from '@faker-js/faker';
 import { clients, users, app_settings, parts_catalog, vehicles } from './schema';
@@ -169,6 +169,9 @@ async function seed() {
   const clientVehicles = insertedClients.flatMap((c) =>
     Array.from({ length: weightedVehicleCount() }, () => randomVehicle(c.id)),
   );
+
+  // Wipe unknown-client vehicles so re-runs don't stack stale rows
+  await db.delete(vehicles).where(eq(vehicles.client_id, UNKNOWN_CLIENT_ID));
 
   // 100 vehicles under Unknown client — always have a description; ~30% also have a plate
   const unknownVehicles = Array.from({ length: 100 }, () => {
