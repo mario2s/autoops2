@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { getPartsCatalogPage, getClientsPage, getVehiclesPage } from '@/db/queries';
 import CatalogSearch from './catalog-search';
+import DeleteButton from '@/components/DeleteButton';
+import { deleteCatalogPartAction, deleteClientAction, deleteVehicleAction } from '@/actions/delete';
 
 const PAGE_SIZE = 20;
 
@@ -54,6 +56,7 @@ export default async function CatalogPage({
 }) {
   const session = await getSession();
   if (!session) redirect('/login');
+  const isAdmin = session.role === 'admin';
 
   const params = await searchParams;
   const tab = (params.tab as Tab) || 'parts';
@@ -78,11 +81,9 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className="hidden sm:grid grid-cols-[1fr_180px_150px] gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          {['Part name', 'Created by', 'Date added'].map((col) => (
-            <span key={col} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
-              {col}
-            </span>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_150px_28px]' : 'grid-cols-[1fr_180px_150px]'}`}>
+          {['Part name', 'Created by', 'Date added', ...(isAdmin ? [''] : [])].map((col, i) => (
+            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
         </div>
         {result.parts.length === 0 ? (
@@ -91,11 +92,12 @@ export default async function CatalogPage({
           result.parts.map((part) => (
             <div
               key={part.id}
-              className="grid grid-cols-1 sm:grid-cols-[1fr_180px_150px] gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
+              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_150px_28px]' : 'sm:grid-cols-[1fr_180px_150px]'}`}
             >
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{part.name}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{part.createdBy}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{formatDate(part.createdAt)}</div>
+              {isAdmin && <DeleteButton action={deleteCatalogPartAction.bind(null, part.id)} label="part" />}
             </div>
           ))
         )}
@@ -107,11 +109,9 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className="hidden sm:grid grid-cols-[1fr_150px_220px_80px] gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          {['Name', 'Phone', 'Email', 'Orders'].map((col) => (
-            <span key={col} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
-              {col}
-            </span>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_28px]' : 'grid-cols-[1fr_150px_220px_80px]'}`}>
+          {['Name', 'Phone', 'Email', 'Orders', ...(isAdmin ? [''] : [])].map((col, i) => (
+            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
         </div>
         {result.clients.length === 0 ? (
@@ -120,12 +120,13 @@ export default async function CatalogPage({
           result.clients.map((client) => (
             <div
               key={client.id}
-              className="grid grid-cols-1 sm:grid-cols-[1fr_150px_220px_80px] gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
+              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_28px]' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
             >
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{client.name}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.phone ?? '—'}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.email ?? '—'}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400">{client.orderCount}</div>
+              {isAdmin && <DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" />}
             </div>
           ))
         )}
@@ -137,11 +138,9 @@ export default async function CatalogPage({
 
     content = (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className="hidden sm:grid grid-cols-[1fr_180px_160px] gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          {['Plate / Description', 'Client', 'Make / Model'].map((col) => (
-            <span key={col} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
-              {col}
-            </span>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_180px_160px_28px]' : 'grid-cols-[1fr_180px_160px]'}`}>
+          {['Plate / Description', 'Client', 'Make / Model', ...(isAdmin ? [''] : [])].map((col, i) => (
+            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
           ))}
         </div>
         {result.vehicles.length === 0 ? (
@@ -150,7 +149,7 @@ export default async function CatalogPage({
           result.vehicles.map((v) => (
             <div
               key={v.id}
-              className="grid grid-cols-1 sm:grid-cols-[1fr_180px_160px] gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
+              className={`grid grid-cols-1 gap-1 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_28px]' : 'sm:grid-cols-[1fr_180px_160px]'}`}
             >
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
                 {v.licensePlate ?? v.description}
@@ -159,6 +158,7 @@ export default async function CatalogPage({
               <div className="text-sm text-zinc-500 dark:text-zinc-400">
                 {[v.make, v.model].filter(Boolean).join(' ') || '—'}
               </div>
+              {isAdmin && <DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" />}
             </div>
           ))
         )}

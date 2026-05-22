@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { getOrdersPage, type OrderStatus } from '@/db/queries';
+import DeleteButton from '@/components/DeleteButton';
+import { deleteOrderAction } from '@/actions/delete';
 
 const PAGE_SIZE = 20;
 
@@ -57,6 +59,7 @@ export default async function DashboardPage({
 }) {
   const session = await getSession();
   if (!session) redirect('/login');
+  const isAdmin = session.role === 'admin';
 
   const params = await searchParams;
   const status = params.status || 'in_progress';
@@ -122,10 +125,10 @@ export default async function DashboardPage({
       {/* Orders table */}
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
         {/* Column headers */}
-        <div className="hidden sm:grid grid-cols-[1fr_160px_130px_110px_90px] gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          {['Vehicle / Client', 'Mechanic', 'Status', 'Deadline', 'Total'].map((col) => (
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}>
+          {['Vehicle / Client', 'Mechanic', 'Status', 'Deadline', 'Total', ...(isAdmin ? [''] : [])].map((col, i) => (
             <span
-              key={col}
+              key={i}
               className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide"
             >
               {col}
@@ -143,8 +146,9 @@ export default async function DashboardPage({
             return (
               <div
                 key={order.id}
-                className="grid grid-cols-1 sm:grid-cols-[1fr_160px_130px_110px_90px] gap-2 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
+                className={`relative grid grid-cols-1 gap-2 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
               >
+                <Link href={`/orders/${order.id}/edit`} className="absolute inset-0" aria-label={`Edit order ${order.vehicleDisplay}`} />
                 {/* Vehicle / Client */}
                 <div>
                   <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 leading-tight">
@@ -207,6 +211,13 @@ export default async function DashboardPage({
                 <div className="text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
                   €{order.total.toFixed(2)}
                 </div>
+
+                {/* Delete */}
+                {isAdmin && (
+                  <div className="relative z-10 sm:self-center">
+                    <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
+                  </div>
+                )}
               </div>
             );
           })
