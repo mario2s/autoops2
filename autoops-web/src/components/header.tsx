@@ -8,7 +8,7 @@ export default async function Header() {
   const session = await getSession();
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+    <header className="sticky top-0 z-40 bg-[color-mix(in_srgb,var(--background)_90%,transparent)] backdrop-blur-sm border-b border-zinc-300 dark:border-zinc-700">
       <div className="relative mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <Link
           href="/"

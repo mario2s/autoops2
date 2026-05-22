@@ -38,9 +38,9 @@ export default function PartsCatalogTab({ parts, isAdmin }: Props) {
 
   return (
     <>
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
         <div
-          className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${
+          className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${
             isAdmin ? 'grid-cols-[1fr_180px_150px_40px]' : 'grid-cols-[1fr_180px_150px]'
           }`}
         >
@@ -60,9 +60,9 @@ export default function PartsCatalogTab({ parts, isAdmin }: Props) {
             <div
               key={part.id}
               onClick={isAdmin ? () => setModal({ mode: 'edit', part }) : undefined}
-              className={`grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 transition-colors ${
+              className={`grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${
                 isAdmin
-                  ? 'sm:grid-cols-[1fr_180px_150px_40px] hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer'
+                  ? 'sm:grid-cols-[1fr_180px_150px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer'
                   : 'sm:grid-cols-[1fr_180px_150px]'
               }`}
             >

@@ -5,19 +5,32 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #f5f0e8;
+  --foreground: #1c1917;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background: #171714;
+  --foreground: #f0ebe5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
+
+  /* Remap zinc to Claude's warm palette */
+  --color-zinc-50: #f9f6f3;
+  --color-zinc-100: #f0ebe5;
+  --color-zinc-200: #e0d9d2;
+  --color-zinc-300: #ccc4bc;
+  --color-zinc-400: #9e9690;
+  --color-zinc-500: #78716c;
+  --color-zinc-600: #57534e;
+  --color-zinc-700: #44403c;
+  --color-zinc-800: #292523;
+  --color-zinc-900: #1c1917;
+  --color-zinc-950: #0c0a09;
 }
 
 body {

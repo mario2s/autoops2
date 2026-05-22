@@ -31,7 +31,7 @@ export default function MobileMenu({ session }: { session: SessionUser | null })
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50">
+        <div className="absolute left-0 right-0 top-full bg-[var(--background)] border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50">
           <nav className="flex flex-col px-6 py-4 gap-1">
             {session ? (
               <>

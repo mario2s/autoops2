@@ -99,7 +99,7 @@ export default async function DashboardPage({
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               status === pill.value
                 ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 border-transparent'
-                : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300'
+                : 'border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
             }`}
           >
             {pill.label}
@@ -108,9 +108,9 @@ export default async function DashboardPage({
       </div>
 
       {/* Orders table */}
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
         {/* Column headers */}
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}>
+        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}>
           {['Vehicle / Client', 'Mechanic', 'Status', 'Deadline', 'Total', ...(isAdmin ? [''] : [])].map((col, i) => (
             <span
               key={i}
@@ -131,7 +131,7 @@ export default async function DashboardPage({
             return (
               <div
                 key={order.id}
-                className={`relative grid grid-cols-1 gap-2 sm:gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
+                className={`relative grid grid-cols-1 gap-2 sm:gap-3 px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
               >
                 <Link href={`/orders/${order.id}/edit`} className="absolute inset-0" aria-label={`Edit order ${order.vehicleDisplay}`} />
                 {/* Vehicle / Client */}
@@ -216,7 +216,7 @@ export default async function DashboardPage({
             {page > 1 && (
               <Link
                 href={pageHref(page - 1)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="px-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 ←
               </Link>
@@ -234,7 +234,7 @@ export default async function DashboardPage({
                   className={`min-w-[32px] px-2 py-1.5 text-xs rounded-lg border text-center transition-colors ${
                     p === page
                       ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 border-transparent font-medium'
-                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                      : 'border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                   }`}
                 >
                   {p}
@@ -245,7 +245,7 @@ export default async function DashboardPage({
             {page < totalPages && (
               <Link
                 href={pageHref(page + 1)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="px-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 →
               </Link>

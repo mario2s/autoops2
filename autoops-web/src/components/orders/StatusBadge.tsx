@@ -79,7 +79,7 @@ export default function StatusBadge({
           <div
             ref={dropdownRef}
             style={{ position: 'absolute', top: pos.top, left: pos.left }}
-            className="z-[9999] min-w-[140px] rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-xl shadow-black/40 py-1 overflow-hidden"
+            className="z-[9999] min-w-[140px] rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 shadow-xl shadow-black/40 py-1 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {ALL_STATUSES.map((s) => (

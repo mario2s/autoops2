@@ -39,7 +39,7 @@ export default function AppNav({ session }: { session: SessionUser }) {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+    <header className="sticky top-0 z-40 bg-[color-mix(in_srgb,var(--background)_95%,transparent)] backdrop-blur-sm border-b border-zinc-300 dark:border-zinc-700">
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
         {/* Logo + desktop nav */}
         <div className="flex items-center gap-5">
@@ -57,8 +57,8 @@ export default function AppNav({ session }: { session: SessionUser }) {
                 href={item.href}
                 className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
                   isActive(item.href)
-                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50'
+                    ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50'
                 }`}
               >
                 {item.label}
@@ -79,7 +79,7 @@ export default function AppNav({ session }: { session: SessionUser }) {
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
               >
                 Log out
               </button>
@@ -111,7 +111,7 @@ export default function AppNav({ session }: { session: SessionUser }) {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <div className="md:hidden border-t border-zinc-300 dark:border-zinc-700 bg-[var(--background)]">
           <nav className="flex flex-col px-4 py-3 gap-0.5">
             {navItems.map((item) => (
               <Link
@@ -120,15 +120,15 @@ export default function AppNav({ session }: { session: SessionUser }) {
                 onClick={() => setOpen(false)}
                 className={`px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   isActive(item.href)
-                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                    ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
                 }`}
               >
                 {item.label}
               </Link>
             ))}
 
-            <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between px-3">
+            <div className="mt-3 pt-3 border-t border-zinc-300 dark:border-zinc-700 flex items-center justify-between px-3">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-xs font-medium text-zinc-600 dark:text-zinc-300">
                   {getInitials(session.name)}

@@ -51,7 +51,7 @@ export default function DeleteButton({ action, label = 'item' }: Props) {
       {state !== 'idle' && (
         <div
           onClick={stop}
-          className="absolute right-full mr-1.5 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap"
+          className="absolute right-full mr-1.5 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap"
         >
           {errorMsg ? (
             <>
