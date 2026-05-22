@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview 3 — Adaptive (Light + Dark)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Light tokens ── */
+  :root {
+    --bg-page:    #f4f4f5;
+    --bg-header:  rgba(255,255,255,0.85);
+    --bg-card:    #ffffff;
+    --bg-input:   #ffffff;
+    --bg-btn:     #09090b;
+    --border-mid: #e4e4e7;
+    --border-input:#d4d4d8;
+    --border-btn: transparent;
+    --text-head:  #09090b;
+    --text-body:  #3f3f46;
+    --text-muted: #71717a;
+    --text-placeholder: #a1a1aa;
+    --text-btn:   #fafafa;
+    --focus-ring: rgba(9,9,11,0.1);
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.06);
+  }
+
+  /* ── Dark tokens ── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-page:    #09090b;
+      --bg-header:  rgba(9,9,11,0.85);
+      --bg-card:    #18181b;
+      --bg-input:   #0c0c0f;
+      --bg-btn:     #fafafa;
+      --border-mid: #27272a;
+      --border-input:#3f3f46;
+      --border-btn: transparent;
+      --text-head:  #fafafa;
+      --text-body:  #d4d4d8;
+      --text-muted: #71717a;
+      --text-placeholder: #52525b;
+      --text-btn:   #09090b;
+      --focus-ring: rgba(255,255,255,0.08);
+      --shadow-card: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.5);
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-head);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-mid);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .logo { font-size: 15px; font-weight: 600; color: var(--text-head); text-decoration: none; }
+  nav { display: flex; gap: 8px; align-items: center; }
+  .nav-link {
+    padding: 8px 14px; font-size: 13px; color: var(--text-muted);
+    border-radius: 8px; text-decoration: none; transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: var(--border-mid); color: var(--text-head); }
+  .nav-cta {
+    padding: 8px 16px; font-size: 13px; font-weight: 500;
+    background: var(--bg-btn); color: var(--text-btn);
+    border-radius: 8px; text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── Page ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-title { font-size: 22px; font-weight: 600; color: var(--text-head); letter-spacing: -0.3px; }
+  .card-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  .fields { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+
+  label {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-body);
+    display: block; margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%; padding: 11px 14px;
+    border: 1px solid var(--border-input); border-radius: 10px;
+    font-size: 14px; color: var(--text-head); background: var(--bg-input);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  input::placeholder { color: var(--text-placeholder); }
+  input:focus { border-color: var(--text-muted); box-shadow: 0 0 0 3px var(--focus-ring); }
+
+  .btn-primary {
+    margin-top: 8px; width: 100%; padding: 12px;
+    background: var(--bg-btn); color: var(--text-btn);
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .footer-text { margin-top: 24px; text-align: center; font-size: 13px; color: var(--text-muted); }
+  .footer-text a { color: var(--text-head); font-weight: 500; text-decoration: none; }
+  .footer-text a:hover { text-decoration: underline; }
+
+  footer {
+    border-top: 1px solid var(--border-mid);
+    padding: 0 32px; height: 52px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  footer span { font-size: 12px; color: var(--text-muted); }
+
+  .scheme-label {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-btn); color: var(--text-btn); padding: 4px 14px;
+    border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    pointer-events: none; z-index: 100;
+    border: 1px solid var(--border-mid);
+  }
+</style>
+</head>
+<body>
+<div class="scheme-label">Option 3 — Adaptive (respects OS preference)</div>
+
+<header>
+  <a href="#" class="logo">AutoOps</a>
+  <nav>
+    <a href="#" class="nav-link">Log in</a>
+    <a href="#" class="nav-cta">Register</a>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h1 class="card-title">Create an account</h1>
+    <p class="card-sub">Request access to AutoOps</p>
+
+    <div class="fields">
+      <div>
+        <label for="name">Full name</label>
+        <input id="name" type="text" placeholder="Jane Smith" />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Min. 8 characters" />
+      </div>
+      <div>
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary">Create account</button>
+    </div>
+
+    <p class="footer-text">Already have an account? <a href="#">Log in</a></p>
+  </div>
+</main>
+
+<footer>
+  <span>AutoOps</span>
+  <span>&copy; 2026</span>
+</footer>
+</body>
+</html>

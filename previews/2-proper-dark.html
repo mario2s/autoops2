@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview 2 — Proper Dark Mode</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    background: #09090b;
+    color: #fafafa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color-scheme: dark;
+  }
+
+  /* ── Header ── */
+  header {
+    background: #09090b;
+    border-bottom: 1px solid #27272a;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+    background: rgba(9,9,11,0.85);
+  }
+  .logo { font-size: 15px; font-weight: 600; color: #fafafa; text-decoration: none; }
+  nav { display: flex; gap: 8px; align-items: center; }
+  .nav-link {
+    padding: 8px 14px; font-size: 13px; color: #a1a1aa;
+    border-radius: 8px; text-decoration: none; transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: #18181b; color: #fafafa; }
+  .nav-cta {
+    padding: 8px 16px; font-size: 13px; font-weight: 500;
+    background: #fafafa; color: #09090b;
+    border-radius: 8px; text-decoration: none;
+    transition: background 0.15s;
+  }
+  .nav-cta:hover { background: #d4d4d8; }
+
+  /* ── Page ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    background: #09090b;
+  }
+
+  .card {
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .card-title { font-size: 22px; font-weight: 600; color: #fafafa; letter-spacing: -0.3px; }
+  .card-sub { font-size: 13px; color: #71717a; margin-top: 4px; }
+
+  .fields { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+  label { font-size: 13px; font-weight: 500; color: #a1a1aa; display: block; margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 11px 14px;
+    border: 1px solid #3f3f46; border-radius: 10px;
+    font-size: 14px; color: #fafafa; background: #09090b;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  input::placeholder { color: #52525b; }
+  input:focus { border-color: #71717a; box-shadow: 0 0 0 3px rgba(255,255,255,0.06); }
+
+  .btn-primary {
+    margin-top: 8px; width: 100%; padding: 12px;
+    background: #fafafa; color: #09090b;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: inherit; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #d4d4d8; }
+
+  .footer-text { margin-top: 24px; text-align: center; font-size: 13px; color: #71717a; }
+  .footer-text a { color: #e4e4e7; font-weight: 500; text-decoration: none; }
+  .footer-text a:hover { text-decoration: underline; }
+
+  footer {
+    border-top: 1px solid #27272a; background: #09090b;
+    padding: 0 32px; height: 52px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  footer span { font-size: 12px; color: #52525b; }
+
+  .scheme-label {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: #fafafa; color: #09090b; padding: 4px 14px;
+    border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    pointer-events: none; z-index: 100;
+  }
+</style>
+</head>
+<body>
+<div class="scheme-label">Option 2 — Proper Dark Mode</div>
+
+<header>
+  <a href="#" class="logo">AutoOps</a>
+  <nav>
+    <a href="#" class="nav-link">Log in</a>
+    <a href="#" class="nav-cta">Register</a>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h1 class="card-title">Create an account</h1>
+    <p class="card-sub">Request access to AutoOps</p>
+
+    <div class="fields">
+      <div>
+        <label for="name">Full name</label>
+        <input id="name" type="text" placeholder="Jane Smith" />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Min. 8 characters" />
+      </div>
+      <div>
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary">Create account</button>
+    </div>
+
+    <p class="footer-text">Already have an account? <a href="#">Log in</a></p>
+  </div>
+</main>
+
+<footer>
+  <span>AutoOps</span>
+  <span>&copy; 2026</span>
+</footer>
+</body>
+</html>

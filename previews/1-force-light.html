@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme: light only;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview 1 — Force Light</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: light only; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    background: #f5f5f5;
+    color: #09090b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: #ffffff;
+    border-bottom: 1px solid #e4e4e7;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    justify-content: space-between;
+  }
+  .logo { font-size: 15px; font-weight: 600; color: #09090b; text-decoration: none; }
+  nav { display: flex; gap: 8px; align-items: center; }
+  .nav-link {
+    padding: 8px 14px; font-size: 13px; color: #71717a;
+    border-radius: 8px; text-decoration: none; transition: background 0.15s;
+  }
+  .nav-link:hover { background: #f4f4f5; color: #09090b; }
+  .nav-cta {
+    padding: 8px 16px; font-size: 13px; font-weight: 500;
+    background: #09090b; color: #fafafa;
+    border-radius: 8px; text-decoration: none;
+  }
+
+  /* ── Page ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    background: #f5f5f5;
+  }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  .card-title { font-size: 22px; font-weight: 600; color: #09090b; letter-spacing: -0.3px; }
+  .card-sub { font-size: 13px; color: #71717a; margin-top: 4px; }
+
+  .fields { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+  label { font-size: 13px; font-weight: 500; color: #3f3f46; display: block; margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 11px 14px;
+    border: 1px solid #d4d4d8; border-radius: 10px;
+    font-size: 14px; color: #09090b; background: #ffffff;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  input::placeholder { color: #a1a1aa; }
+  input:focus { border-color: #09090b; box-shadow: 0 0 0 3px rgba(9,9,11,0.08); }
+
+  .btn-primary {
+    margin-top: 8px; width: 100%; padding: 12px;
+    background: #09090b; color: #fafafa;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: inherit; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #27272a; }
+
+  .footer-text { margin-top: 24px; text-align: center; font-size: 13px; color: #71717a; }
+  .footer-text a { color: #09090b; font-weight: 500; text-decoration: none; }
+  .footer-text a:hover { text-decoration: underline; }
+
+  footer {
+    border-top: 1px solid #e4e4e7; background: #ffffff;
+    padding: 0 32px; height: 52px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  footer span { font-size: 12px; color: #a1a1aa; }
+
+  /* ── Label ── */
+  .scheme-label {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: #09090b; color: #fafafa; padding: 4px 14px;
+    border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    pointer-events: none; z-index: 100;
+  }
+</style>
+</head>
+<body>
+<div class="scheme-label">Option 1 — Force Light Mode</div>
+
+<header>
+  <a href="#" class="logo">AutoOps</a>
+  <nav>
+    <a href="#" class="nav-link">Log in</a>
+    <a href="#" class="nav-cta">Register</a>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h1 class="card-title">Create an account</h1>
+    <p class="card-sub">Request access to AutoOps</p>
+
+    <div class="fields">
+      <div>
+        <label for="name">Full name</label>
+        <input id="name" type="text" placeholder="Jane Smith" />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Min. 8 characters" />
+      </div>
+      <div>
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary">Create account</button>
+    </div>
+
+    <p class="footer-text">Already have an account? <a href="#">Log in</a></p>
+  </div>
+</main>
+
+<footer>
+  <span>AutoOps</span>
+  <span>&copy; 2026</span>
+</footer>
+</body>
+</html>
