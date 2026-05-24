@@ -20,7 +20,7 @@ type Props<T extends { id: string }> = {
   searchPlaceholder: string;
   emptyMessage: string;
   ctaLabel: string;
-  onCta: () => void;
+  onCta: (searchTerm: string) => void;
   refreshKey?: number;
 };
 
@@ -112,7 +112,7 @@ export function CatalogList<T extends { id: string }>({
       ) : error ? (
         <ListState state="error" message={error} ctaLabel="Retry" onCta={() => load({ page: 1, reset: true, term: debouncedTerm })} />
       ) : items.length === 0 ? (
-        <ListState state="empty" message={emptyMessage} ctaLabel={ctaLabel} onCta={onCta} />
+        <ListState state="empty" message={emptyMessage} ctaLabel={ctaLabel} onCta={() => onCta(searchText)} />
       ) : (
         <FlatList
           data={items}

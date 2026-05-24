@@ -21,9 +21,10 @@ export default function PartsListScreen() {
   const isAdmin = role === 'admin';
 
   const [showCreate, setShowCreate] = useState(false);
+  const [createInitialName, setCreateInitialName] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  useCatalogCtaRegister('+ Add part', () => setShowCreate(true));
+  useCatalogCtaRegister('+ Add part', () => { setCreateInitialName(''); setShowCreate(true); });
 
   async function handleDelete(part: Part) {
     const ok = await confirmAlert({
@@ -50,7 +51,7 @@ export default function PartsListScreen() {
         searchPlaceholder="Search parts"
         emptyMessage="No parts in catalog — tap + Add part to get started"
         ctaLabel="+ Add part"
-        onCta={() => setShowCreate(true)}
+        onCta={(term) => { setCreateInitialName(term); setShowCreate(true); }}
         refreshKey={refreshKey}
         renderItem={(part, { isTablet }) => (
           <View
@@ -77,6 +78,7 @@ export default function PartsListScreen() {
       />
       <PartModal
         visible={showCreate}
+        initialName={createInitialName}
         onClose={() => setShowCreate(false)}
         onCreated={() => {
           setShowCreate(false);

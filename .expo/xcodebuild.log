@@ -1,0 +1,3 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace /Users/mario/Documents/autoops2/ios/autoops2.xcworkspace -configuration Debug -scheme autoops2 -destination id=00008150-000858882139401C
+

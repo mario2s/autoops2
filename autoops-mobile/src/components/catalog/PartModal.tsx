@@ -15,11 +15,12 @@ import type { Part } from '@/lib/types';
 
 type Props = {
   visible: boolean;
+  initialName?: string;
   onClose: () => void;
   onCreated: (part: Part) => void;
 };
 
-export function PartModal({ visible, onClose, onCreated }: Props) {
+export function PartModal({ visible, initialName, onClose, onCreated }: Props) {
   const theme = useTheme();
   const [name, setName] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -27,10 +28,10 @@ export function PartModal({ visible, onClose, onCreated }: Props) {
 
   useEffect(() => {
     if (visible) {
-      setName('');
+      setName(initialName ?? '');
       setError(null);
     }
-  }, [visible]);
+  }, [visible, initialName]);
 
   async function submit() {
     if (!name.trim() || submitting) return;

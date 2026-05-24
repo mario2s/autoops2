@@ -21,9 +21,10 @@ export default function ClientsListScreen() {
   const isAdmin = role === 'admin';
 
   const [showCreate, setShowCreate] = useState(false);
+  const [createInitialName, setCreateInitialName] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  useCatalogCtaRegister('+ Add client', () => setShowCreate(true));
+  useCatalogCtaRegister('+ Add client', () => { setCreateInitialName(''); setShowCreate(true); });
 
   async function handleDelete(client: Client) {
     const ok = await confirmAlert({
@@ -49,7 +50,7 @@ export default function ClientsListScreen() {
         searchPlaceholder="Search clients"
         emptyMessage="No clients yet — add one during order creation or tap + Add client"
         ctaLabel="+ Add client"
-        onCta={() => setShowCreate(true)}
+        onCta={(term) => { setCreateInitialName(term); setShowCreate(true); }}
         refreshKey={refreshKey}
         renderItem={(c, { isTablet }) => {
           const isUnknown = c.id === UNKNOWN_CLIENT_ID;
@@ -79,6 +80,7 @@ export default function ClientsListScreen() {
       />
       <ClientModal
         visible={showCreate}
+        initialName={createInitialName}
         onClose={() => setShowCreate(false)}
         onCreated={() => {
           setShowCreate(false);

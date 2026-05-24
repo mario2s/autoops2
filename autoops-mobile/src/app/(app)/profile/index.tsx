@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useTheme } from '@/hooks/use-theme';
+import { useThemePreference, type ThemePreference } from '@/hooks/use-theme-preference';
 import { useSession } from '@/hooks/use-session';
 import { clearToken } from '@/lib/auth';
 
@@ -21,7 +22,14 @@ function initialsOf(name: string | null | undefined): string {
 export default function ProfileScreen() {
   const theme = useTheme();
   const { name, email, role } = useSession();
+  const { preference, setPreference } = useThemePreference();
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const themeOptions: { value: ThemePreference; label: string }[] = [
+    { value: 'system', label: 'System' },
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ];
 
   async function doLogout() {
     setShowConfirm(false);
@@ -45,6 +53,34 @@ export default function ProfileScreen() {
         {email ? <Text style={[styles.email, { color: theme.textMuted }]}>{email}</Text> : null}
         <View style={[styles.role, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
           <Text style={[styles.roleText, { color: theme.textSecondary }]}>{roleLabel}</Text>
+        </View>
+
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+        <View style={styles.themeSection}>
+          <Text style={[styles.themeLabel, { color: theme.textSecondary }]}>Theme</Text>
+          <View style={[styles.themePicker, { backgroundColor: theme.backgroundElement }]}>
+            {themeOptions.map(({ value, label }) => {
+              const active = preference === value;
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => setPreference(value)}
+                  style={[
+                    styles.themeBtn,
+                    active && { backgroundColor: theme.background },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.themeBtnText,
+                      { color: active ? theme.text : theme.textMuted },
+                    ]}>
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         <View style={[styles.divider, { backgroundColor: theme.border }]} />
@@ -103,6 +139,20 @@ const styles = StyleSheet.create({
   },
   roleText: { fontSize: 10, fontWeight: '500' },
   divider: { height: 0.5, alignSelf: 'stretch', marginTop: 14, marginBottom: 14 },
+  themeSection: { alignSelf: 'stretch', gap: 8 },
+  themeLabel: { fontSize: 11, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.5 },
+  themePicker: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    padding: 3,
+  },
+  themeBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  themeBtnText: { fontSize: 12, fontWeight: '500' },
   logout: {
     alignSelf: 'stretch',
     paddingVertical: 10,

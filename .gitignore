@@ -6,6 +6,9 @@ node_modules/
 .env.*
 !.env.example
 
+# native build output
+ios/
+
 # misc
 .DS_Store
 *.pem

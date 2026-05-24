@@ -22,9 +22,10 @@ export default function VehiclesListScreen() {
   const isAdmin = role === 'admin';
 
   const [showCreate, setShowCreate] = useState(false);
+  const [createInitialDescription, setCreateInitialDescription] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  useCatalogCtaRegister('+ Add vehicle', () => setShowCreate(true));
+  useCatalogCtaRegister('+ Add vehicle', () => { setCreateInitialDescription(''); setShowCreate(true); });
 
   async function handleDelete(vehicle: Vehicle) {
     const ok = await confirmAlert({
@@ -50,7 +51,7 @@ export default function VehiclesListScreen() {
         searchPlaceholder="Search by plate or description"
         emptyMessage="No vehicles yet — add one during order creation or tap + Add vehicle"
         ctaLabel="+ Add vehicle"
-        onCta={() => setShowCreate(true)}
+        onCta={(term) => { setCreateInitialDescription(term); setShowCreate(true); }}
         refreshKey={refreshKey}
         renderItem={(v, { isTablet }) => {
           const makeModel = [v.make, v.model, v.year].filter(Boolean).join(' ');
@@ -84,6 +85,7 @@ export default function VehiclesListScreen() {
       />
       <VehicleModal
         visible={showCreate}
+        initialDescription={createInitialDescription}
         onClose={() => setShowCreate(false)}
         onCreated={() => {
           setShowCreate(false);
