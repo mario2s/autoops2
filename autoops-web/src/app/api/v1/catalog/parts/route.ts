@@ -1,28 +1,20 @@
 import { NextRequest } from 'next/server';
-import { ilike, count, desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { parts_catalog } from '@/db/schema';
 import { validateApiRequest } from '@/lib/api-auth';
 import { success, paginated, handleError } from '@/lib/api-response';
 import { ApiError } from '@/lib/api-error';
+import { parsePaging, parseSearch, partsSearchPredicate } from '@/lib/api-catalog';
 
 export async function GET(request: NextRequest) {
   try {
     await validateApiRequest(request);
     const { searchParams } = request.nextUrl;
 
-    const searchRaw = (searchParams.get('search') ?? '').trim();
-    let where;
-    if (searchRaw) {
-      if (searchRaw.length < 2) {
-        throw new ApiError(400, 'SEARCH_TOO_SHORT', 'search must be at least 2 characters');
-      }
-      where = ilike(parts_catalog.name, `%${searchRaw}%`);
-    }
-
-    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1);
-    const pageSizeRaw = parseInt(searchParams.get('pageSize') ?? '20', 10) || 20;
-    const pageSize = Math.min(100, Math.max(1, pageSizeRaw));
+    const term = parseSearch(searchParams);
+    const where = term ? partsSearchPredicate(term) : undefined;
+    const { page, pageSize } = parsePaging(searchParams);
 
     const [{ value: total }] = await db
       .select({ value: count() })

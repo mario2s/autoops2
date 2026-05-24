@@ -90,7 +90,9 @@ Expect: status 401
 
 ## Test File: catalog.test.ts
 
-### CAT-01 — Create a part (mechanic)
+All three catalog entities live under `/api/v1/catalog/{parts,clients,vehicles}` and expose GET (list + single), POST, PATCH, and DELETE. PATCH on clients/vehicles is admin-only; PATCH on parts is open. DELETE is admin-only on all three and is rejected (409) when the row is still referenced by an order (or vehicle, for clients).
+
+### CAT-PARTS-01 — Create a part (mechanic)
 POST /api/v1/catalog/parts
 Auth: mechanicToken
 Body: { "name": "Test Brake Pads — Front" }
@@ -100,19 +102,19 @@ Expect:
 - data.name === "Test Brake Pads — Front"
 Action: store data.id as context.partId
 
-### CAT-02 — Create duplicate part name
+### CAT-PARTS-02 — Create duplicate part name
 POST /api/v1/catalog/parts
 Auth: mechanicToken
 Body: { "name": "Test Brake Pads — Front" }
 Expect: status 409
 
-### CAT-03 — Create part with missing name
+### CAT-PARTS-03 — Create part with missing name
 POST /api/v1/catalog/parts
 Auth: mechanicToken
 Body: {}
 Expect: status 400
 
-### CAT-04 — List parts (no filter)
+### CAT-PARTS-04 — List parts (no filter)
 GET /api/v1/catalog/parts
 Auth: mechanicToken
 Expect:
@@ -121,30 +123,50 @@ Expect:
 - pagination.pageSize === 20
 - at least 1 result
 
-### CAT-05 — Search parts by name
+### CAT-PARTS-05 — Search parts by name
 GET /api/v1/catalog/parts?search=Brake
 Auth: mechanicToken
 Expect:
 - status 200
 - every item in data has name containing "Brake" (case-insensitive)
 
-### CAT-06 — Search with less than 2 chars
+### CAT-PARTS-06 — Search with less than 2 chars
 GET /api/v1/catalog/parts?search=B
 Auth: mechanicToken
 Expect: status 400
 
-### CAT-07 — Create part without auth
+### CAT-PARTS-07 — Create part without auth
 POST /api/v1/catalog/parts
 No auth
 Body: { "name": "Unauthorized Part" }
 Expect: status 401
 
+### CAT-PARTS-08 — Get part by id
+GET /api/v1/catalog/parts/:partId
+Auth: mechanicToken
+Expect:
+- status 200
+- data.id === context.partId
+
+### CAT-PARTS-09 — Rename part (any authenticated user)
+PATCH /api/v1/catalog/parts/:partId
+Auth: mechanicToken
+Body: { "name": "Test Brake Pads — Front (renamed)" }
+Expect:
+- status 200
+- data.name === "Test Brake Pads — Front (renamed)"
+
+### CAT-PARTS-10 — Delete part (mechanic — forbidden)
+DELETE /api/v1/catalog/parts/:partId
+Auth: mechanicToken
+Expect: status 403
+
 ---
 
 ## Test File: clients.test.ts
 
-### CLI-01 — Create a client (mechanic)
-POST /api/v1/clients
+### CAT-CLI-01 — Create a client (mechanic)
+POST /api/v1/catalog/clients
 Auth: mechanicToken
 Body: { "name": "Test Client", "phone": "+359 88 000 0000", "email": "test@client.com", "notes": "Test note" }
 Expect:
@@ -153,32 +175,59 @@ Expect:
 - data.name === "Test Client"
 Action: store data.id as context.clientId
 
-### CLI-02 — Create client with missing name
-POST /api/v1/clients
+### CAT-CLI-02 — Create client with missing name
+POST /api/v1/catalog/clients
 Auth: mechanicToken
 Body: { "phone": "+359 88 111 1111" }
 Expect: status 400
 
-### CLI-03 — Edit client (admin)
-PATCH /api/v1/clients/:clientId
+### CAT-CLI-03 — Edit client (admin)
+PATCH /api/v1/catalog/clients/:clientId
 Auth: adminToken
 Body: { "notes": "Updated by admin" }
 Expect:
 - status 200
 - data.notes === "Updated by admin"
 
-### CLI-04 — Edit client (mechanic — forbidden)
-PATCH /api/v1/clients/:clientId
+### CAT-CLI-04 — Edit client (mechanic — forbidden)
+PATCH /api/v1/catalog/clients/:clientId
 Auth: mechanicToken
 Body: { "notes": "Should not work" }
 Expect: status 403
+
+### CAT-CLI-05 — List clients
+GET /api/v1/catalog/clients
+Auth: mechanicToken
+Expect:
+- status 200
+- data is an array
+- pagination.total >= 1
+
+### CAT-CLI-06 — Get client by id
+GET /api/v1/catalog/clients/:clientId
+Auth: mechanicToken
+Expect:
+- status 200
+- data.id === context.clientId
+
+### CAT-CLI-07 — Delete client (mechanic — forbidden)
+DELETE /api/v1/catalog/clients/:clientId
+Auth: mechanicToken
+Expect: status 403
+
+### CAT-CLI-08 — Delete protected Unknown client (admin — 409)
+DELETE /api/v1/catalog/clients/00000000-0000-0000-0000-000000000001
+Auth: adminToken
+Expect:
+- status 409
+- error.code === "CLIENT_PROTECTED"
 
 ---
 
 ## Test File: vehicles.test.ts
 
-### VEH-01 — Create vehicle with license plate only (mechanic)
-POST /api/v1/vehicles
+### CAT-VEH-01 — Create vehicle with license plate only (mechanic)
+POST /api/v1/catalog/vehicles
 Auth: mechanicToken
 Body: { "licensePlate": "CB 1234 AB", "clientId": context.clientId }
 Expect:
@@ -186,37 +235,65 @@ Expect:
 - data.licensePlate === "CB 1234 AB"
 Action: store data.id as context.vehicleId
 
-### VEH-02 — Create vehicle with description only
-POST /api/v1/vehicles
+### CAT-VEH-02 — Create vehicle with description only
+POST /api/v1/catalog/vehicles
 Auth: mechanicToken
 Body: { "description": "The red Toyota" }
 Expect: status 201
 
-### VEH-03 — Create vehicle with no plate and no description
-POST /api/v1/vehicles
+### CAT-VEH-03 — Create vehicle with no plate and no description
+POST /api/v1/catalog/vehicles
 Auth: mechanicToken
 Body: { "make": "Toyota", "year": 2019 }
 Expect: status 400
 
-### VEH-04 — Create vehicle with all fields
-POST /api/v1/vehicles
+### CAT-VEH-04 — Create vehicle with all fields
+POST /api/v1/catalog/vehicles
 Auth: mechanicToken
 Body: { "licensePlate": "PA 9999 ZZ", "description": "Blue VW", "make": "Volkswagen", "model": "Golf", "year": 2020, "vin": "1HGBH41JXMN109186", "clientId": context.clientId }
 Expect: status 201
+Action: store data.id as context.deletableVehicleId
 
-### VEH-05 — Edit vehicle (admin only)
-PATCH /api/v1/vehicles/:vehicleId
+### CAT-VEH-05 — Edit vehicle (admin only)
+PATCH /api/v1/catalog/vehicles/:vehicleId
 Auth: adminToken
 Body: { "description": "Updated description" }
 Expect:
 - status 200
 - data.description === "Updated description"
 
-### VEH-06 — Edit vehicle (mechanic — forbidden)
-PATCH /api/v1/vehicles/:vehicleId
+### CAT-VEH-06 — Edit vehicle (mechanic — forbidden)
+PATCH /api/v1/catalog/vehicles/:vehicleId
 Auth: mechanicToken
 Body: { "description": "Should fail" }
 Expect: status 403
+
+### CAT-VEH-07 — List vehicles
+GET /api/v1/catalog/vehicles
+Auth: mechanicToken
+Expect:
+- status 200
+- data is an array
+- pagination.total >= 2
+
+### CAT-VEH-08 — Get vehicle by id
+GET /api/v1/catalog/vehicles/:vehicleId
+Auth: mechanicToken
+Expect:
+- status 200
+- data.id === context.vehicleId
+
+### CAT-VEH-09 — Delete vehicle (mechanic — forbidden)
+DELETE /api/v1/catalog/vehicles/:deletableVehicleId
+Auth: mechanicToken
+Expect: status 403
+
+### CAT-VEH-10 — Delete unused vehicle (admin)
+DELETE /api/v1/catalog/vehicles/:deletableVehicleId
+Auth: adminToken
+Expect:
+- status 200
+- data.id === context.deletableVehicleId
 
 ---
 
@@ -389,20 +466,50 @@ Expect:
 
 ---
 
+---
+
+## Test File: catalog-delete.test.ts
+
+Runs LAST in the sequencer (after orders.test.ts) — verifies that admin DELETE is rejected with 409 while the row is still referenced.
+
+### CAT-DEL-01 — Delete part referenced by an order (admin → 409)
+DELETE /api/v1/catalog/parts/:partId
+Auth: adminToken
+Expect:
+- status 409
+- error.code === "PART_IN_USE"
+
+### CAT-DEL-02 — Delete vehicle referenced by an order (admin → 409)
+DELETE /api/v1/catalog/vehicles/:vehicleId
+Auth: adminToken
+Expect:
+- status 409
+- error.code === "VEHICLE_IN_USE"
+
+### CAT-DEL-03 — Delete client with vehicles/orders (admin → 409)
+DELETE /api/v1/catalog/clients/:clientId
+Auth: adminToken
+Expect:
+- status 409
+- error.code === "CLIENT_IN_USE"
+
+---
+
 ## Expected PASS Report Format
 
 Agent prints this summary after all tests complete:
 
 AUTOOPS API TEST REPORT
-=======================
-AUTH     9/9   PASS
-CATALOG  7/7   PASS
-CLIENTS  4/4   PASS
-VEHICLES 6/6   PASS
-ORDERS   17/17 PASS
-USERS    3/3   PASS
------------------------
-TOTAL    46/46 PASS
+=========================
+AUTH          9/9    PASS
+CATALOG-PARTS 10/10  PASS
+CLIENTS       8/8    PASS
+VEHICLES      10/10  PASS
+ORDERS        17/17  PASS
+USERS         3/3    PASS
+DELETE-IN-USE 3/3    PASS
+-------------------------
+TOTAL         60/60  PASS
 Duration: Xs
 
 If any test fails, agent prints:

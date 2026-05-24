@@ -458,10 +458,41 @@ export const openApiSpec = {
         },
       },
     },
-    '/clients': {
+    '/catalog/clients': {
+      get: {
+        summary: 'List clients',
+        tags: ['Catalog'],
+        parameters: [
+          {
+            name: 'search',
+            in: 'query',
+            schema: { type: 'string', minLength: 2 },
+            description: 'Case-insensitive substring match on name/phone/email (min 2 chars)',
+          },
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'pageSize', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+        ],
+        responses: {
+          '200': {
+            description: 'Paginated clients list',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: { type: 'array', items: { $ref: '#/components/schemas/Client' } },
+                    pagination: { $ref: '#/components/schemas/Pagination' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
       post: {
         summary: 'Create a client',
-        tags: ['Clients'],
+        tags: ['Catalog'],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ClientInput' } } },
@@ -483,13 +514,32 @@ export const openApiSpec = {
         },
       },
     },
-    '/clients/{id}': {
+    '/catalog/clients/{id}': {
       parameters: [
         { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
       ],
+      get: {
+        summary: 'Get a client',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Client',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { data: { $ref: '#/components/schemas/Client' } },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
       patch: {
         summary: 'Update a client (admin only)',
-        tags: ['Clients'],
+        tags: ['Catalog'],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ClientInput' } } },
@@ -512,11 +562,71 @@ export const openApiSpec = {
           '404': { $ref: '#/components/responses/NotFound' },
         },
       },
+      delete: {
+        summary: 'Delete a client (admin only). Blocked if any vehicles or orders reference it.',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Deleted',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'object',
+                      properties: { id: { type: 'string', format: 'uuid' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+          '409': {
+            description: 'Client is in use (has vehicles or orders) or is the protected Unknown client',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
+        },
+      },
     },
-    '/vehicles': {
+    '/catalog/vehicles': {
+      get: {
+        summary: 'List vehicles',
+        tags: ['Catalog'],
+        parameters: [
+          {
+            name: 'search',
+            in: 'query',
+            schema: { type: 'string', minLength: 2 },
+            description: 'Case-insensitive match on plate/description/make/model/vin (min 2 chars)',
+          },
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'pageSize', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+        ],
+        responses: {
+          '200': {
+            description: 'Paginated vehicles list',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: { type: 'array', items: { $ref: '#/components/schemas/Vehicle' } },
+                    pagination: { $ref: '#/components/schemas/Pagination' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
       post: {
         summary: 'Create a vehicle',
-        tags: ['Vehicles'],
+        tags: ['Catalog'],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/VehicleInput' } } },
@@ -538,13 +648,32 @@ export const openApiSpec = {
         },
       },
     },
-    '/vehicles/{id}': {
+    '/catalog/vehicles/{id}': {
       parameters: [
         { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
       ],
+      get: {
+        summary: 'Get a vehicle',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Vehicle',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { data: { $ref: '#/components/schemas/Vehicle' } },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
       patch: {
         summary: 'Update a vehicle (admin only)',
-        tags: ['Vehicles'],
+        tags: ['Catalog'],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/VehicleInput' } } },
@@ -565,6 +694,35 @@ export const openApiSpec = {
           '401': { $ref: '#/components/responses/Unauthorized' },
           '403': { $ref: '#/components/responses/Forbidden' },
           '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+      delete: {
+        summary: 'Delete a vehicle (admin only). Blocked if any orders reference it.',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Deleted',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'object',
+                      properties: { id: { type: 'string', format: 'uuid' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+          '409': {
+            description: 'Vehicle is referenced by one or more orders',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
         },
       },
     },
@@ -631,6 +789,94 @@ export const openApiSpec = {
           '401': { $ref: '#/components/responses/Unauthorized' },
           '409': {
             description: 'Part name already exists',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
+        },
+      },
+    },
+    '/catalog/parts/{id}': {
+      parameters: [
+        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      get: {
+        summary: 'Get a catalog part',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Part',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { data: { $ref: '#/components/schemas/CatalogPart' } },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+      patch: {
+        summary: 'Rename a catalog part',
+        tags: ['Catalog'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Updated part',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { data: { $ref: '#/components/schemas/CatalogPart' } },
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+          '409': {
+            description: 'Part name already exists',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
+        },
+      },
+      delete: {
+        summary: 'Delete a catalog part (admin only). Blocked if any orders reference it.',
+        tags: ['Catalog'],
+        responses: {
+          '200': {
+            description: 'Deleted',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'object',
+                      properties: { id: { type: 'string', format: 'uuid' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+          '409': {
+            description: 'Part is referenced by one or more orders',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
           },
         },

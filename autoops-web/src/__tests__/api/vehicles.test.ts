@@ -1,9 +1,9 @@
 import { apiRequest } from './http';
 import { context } from './context';
 
-describe('vehicles', () => {
-  test('VEH-01 — Create vehicle with license plate only (mechanic)', async () => {
-    const res = await apiRequest('/api/v1/vehicles', {
+describe('catalog/vehicles', () => {
+  test('CAT-VEH-01 — Create vehicle with license plate only (mechanic)', async () => {
+    const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
       body: { licensePlate: 'CB 1234 AB', clientId: context.clientId },
@@ -13,8 +13,8 @@ describe('vehicles', () => {
     context.vehicleId = res.body.data.id;
   });
 
-  test('VEH-02 — Create vehicle with description only', async () => {
-    const res = await apiRequest('/api/v1/vehicles', {
+  test('CAT-VEH-02 — Create vehicle with description only', async () => {
+    const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
       body: { description: 'The red Toyota' },
@@ -22,8 +22,8 @@ describe('vehicles', () => {
     expect(res.status).toBe(201);
   });
 
-  test('VEH-03 — Create vehicle with no plate and no description', async () => {
-    const res = await apiRequest('/api/v1/vehicles', {
+  test('CAT-VEH-03 — Create vehicle with no plate and no description', async () => {
+    const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
       body: { make: 'Toyota', year: 2019 },
@@ -31,8 +31,8 @@ describe('vehicles', () => {
     expect(res.status).toBe(400);
   });
 
-  test('VEH-04 — Create vehicle with all fields', async () => {
-    const res = await apiRequest('/api/v1/vehicles', {
+  test('CAT-VEH-04 — Create vehicle with all fields', async () => {
+    const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
       body: {
@@ -46,10 +46,11 @@ describe('vehicles', () => {
       },
     });
     expect(res.status).toBe(201);
+    context.deletableVehicleId = res.body.data.id;
   });
 
-  test('VEH-05 — Edit vehicle (admin only)', async () => {
-    const res = await apiRequest(`/api/v1/vehicles/${context.vehicleId}`, {
+  test('CAT-VEH-05 — Edit vehicle (admin only)', async () => {
+    const res = await apiRequest(`/api/v1/catalog/vehicles/${context.vehicleId}`, {
       method: 'PATCH',
       token: context.adminToken,
       body: { description: 'Updated description' },
@@ -58,12 +59,46 @@ describe('vehicles', () => {
     expect(res.body.data.description).toBe('Updated description');
   });
 
-  test('VEH-06 — Edit vehicle (mechanic — forbidden)', async () => {
-    const res = await apiRequest(`/api/v1/vehicles/${context.vehicleId}`, {
+  test('CAT-VEH-06 — Edit vehicle (mechanic — forbidden)', async () => {
+    const res = await apiRequest(`/api/v1/catalog/vehicles/${context.vehicleId}`, {
       method: 'PATCH',
       token: context.mechanicToken,
       body: { description: 'Should fail' },
     });
     expect(res.status).toBe(403);
+  });
+
+  test('CAT-VEH-07 — List vehicles', async () => {
+    const res = await apiRequest('/api/v1/catalog/vehicles', {
+      token: context.mechanicToken,
+    });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination.total).toBeGreaterThanOrEqual(2);
+  });
+
+  test('CAT-VEH-08 — Get vehicle by id', async () => {
+    const res = await apiRequest(`/api/v1/catalog/vehicles/${context.vehicleId}`, {
+      token: context.mechanicToken,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(context.vehicleId);
+  });
+
+  test('CAT-VEH-09 — Delete vehicle (mechanic — forbidden)', async () => {
+    const res = await apiRequest(`/api/v1/catalog/vehicles/${context.deletableVehicleId}`, {
+      method: 'DELETE',
+      token: context.mechanicToken,
+    });
+    expect(res.status).toBe(403);
+  });
+
+  test('CAT-VEH-10 — Delete unused vehicle (admin)', async () => {
+    const res = await apiRequest(`/api/v1/catalog/vehicles/${context.deletableVehicleId}`, {
+      method: 'DELETE',
+      token: context.adminToken,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(context.deletableVehicleId);
   });
 });

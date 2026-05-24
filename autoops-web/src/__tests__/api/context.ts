@@ -25,6 +25,7 @@ export type SharedContext = {
   clientId: string;
   vehicleId: string;
   partId: string;
+  deletableVehicleId: string;
 };
 
 export const CONTEXT_FILE = join(tmpdir(), 'autoops-api-test-context.json');
@@ -41,6 +42,7 @@ const initial: SharedContext = {
   clientId: '',
   vehicleId: '',
   partId: '',
+  deletableVehicleId: '',
 };
 
 function load(): SharedContext {

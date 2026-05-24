@@ -1,17 +1,19 @@
 // Custom Jest reporter that prints the AUTOOPS API TEST REPORT summary.
 
 const GROUPS = [
-  { label: 'AUTH    ', file: 'auth.test.ts' },
-  { label: 'CATALOG ', file: 'catalog.test.ts' },
-  { label: 'CLIENTS ', file: 'clients.test.ts' },
-  { label: 'VEHICLES', file: 'vehicles.test.ts' },
-  { label: 'ORDERS  ', file: 'orders.test.ts' },
-  { label: 'USERS   ', file: 'users.test.ts' },
+  { label: 'AUTH         ', file: 'auth.test.ts' },
+  { label: 'CATALOG-PARTS', file: 'catalog.test.ts' },
+  { label: 'CLIENTS      ', file: 'clients.test.ts' },
+  { label: 'VEHICLES     ', file: 'vehicles.test.ts' },
+  { label: 'ORDERS       ', file: 'orders.test.ts' },
+  { label: 'USERS        ', file: 'users.test.ts' },
+  { label: 'DELETE-IN-USE', file: 'catalog-delete.test.ts' },
 ];
 
 function idFromTitle(title) {
-  // Extract "AUTH-01", "ORD-15", etc. from test name like "AUTH-01 — Login..."
-  const m = title.match(/^([A-Z]+-\d+)/);
+  // Extracts ids like "AUTH-01", "CAT-PARTS-08", "ORD-15" from titles such as
+  // "CAT-PARTS-08 — Get part by id".
+  const m = title.match(/^([A-Z]+(?:-[A-Z]+)*-\d+)/);
   return m ? m[1] : title;
 }
 

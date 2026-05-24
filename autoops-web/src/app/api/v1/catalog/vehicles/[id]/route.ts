@@ -5,24 +5,60 @@ import { vehicles, clients } from '@/db/schema';
 import { validateApiRequest, requireAdmin } from '@/lib/api-auth';
 import { success, handleError } from '@/lib/api-response';
 import { ApiError } from '@/lib/api-error';
+import {
+  assertVehicleNotInUse,
+  readOptionalString,
+  readOptionalYear,
+} from '@/lib/api-catalog';
 
-function readOptionalString(value: unknown, field: string): string | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null) return null;
-  if (typeof value !== 'string') {
-    throw new ApiError(400, 'INVALID_FIELD', `${field} must be a string`);
-  }
-  const trimmed = value.trim();
-  return trimmed || null;
+async function loadVehicle(id: string) {
+  const [row] = await db
+    .select({
+      id: vehicles.id,
+      clientId: vehicles.client_id,
+      licensePlate: vehicles.license_plate,
+      description: vehicles.description,
+      make: vehicles.make,
+      model: vehicles.model,
+      year: vehicles.year,
+      vin: vehicles.vin,
+      createdAt: vehicles.created_at,
+      updatedAt: vehicles.updated_at,
+    })
+    .from(vehicles)
+    .where(eq(vehicles.id, id))
+    .limit(1);
+  if (!row) throw new ApiError(404, 'VEHICLE_NOT_FOUND', 'Vehicle not found');
+  return row;
 }
 
-function readOptionalYear(value: unknown): number | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null) return null;
-  if (typeof value !== 'number' || !Number.isInteger(value)) {
-    throw new ApiError(400, 'INVALID_YEAR', 'year must be an integer');
+function serialize(row: Awaited<ReturnType<typeof loadVehicle>>) {
+  return {
+    id: row.id,
+    clientId: row.clientId,
+    licensePlate: row.licensePlate,
+    description: row.description,
+    make: row.make,
+    model: row.model,
+    year: row.year,
+    vin: row.vin,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    await validateApiRequest(request);
+    const { id } = await params;
+    const row = await loadVehicle(id);
+    return success(serialize(row));
+  } catch (e) {
+    return handleError(e);
   }
-  return value;
 }
 
 export async function PATCH(
@@ -33,16 +69,7 @@ export async function PATCH(
     const { user } = await validateApiRequest(request);
     requireAdmin(user);
     const { id } = await params;
-
-    const [existing] = await db
-      .select({
-        licensePlate: vehicles.license_plate,
-        description: vehicles.description,
-      })
-      .from(vehicles)
-      .where(eq(vehicles.id, id))
-      .limit(1);
-    if (!existing) throw new ApiError(404, 'VEHICLE_NOT_FOUND', 'Vehicle not found');
+    const existing = await loadVehicle(id);
 
     const body = await request.json().catch(() => null);
     if (!body || typeof body !== 'object') {
@@ -57,7 +84,6 @@ export async function PATCH(
     if (licensePlate !== undefined) updates.license_plate = licensePlate;
     if (description !== undefined) updates.description = description;
 
-    // Enforce: licensePlate or description must remain present after update.
     const finalPlate = licensePlate !== undefined ? licensePlate : existing.licensePlate;
     const finalDesc = description !== undefined ? description : existing.description;
     if (!finalPlate && !finalDesc) {
@@ -87,36 +113,25 @@ export async function PATCH(
     }
 
     await db.update(vehicles).set(updates).where(eq(vehicles.id, id));
+    const row = await loadVehicle(id);
+    return success(serialize(row));
+  } catch (e) {
+    return handleError(e);
+  }
+}
 
-    const [row] = await db
-      .select({
-        id: vehicles.id,
-        clientId: vehicles.client_id,
-        licensePlate: vehicles.license_plate,
-        description: vehicles.description,
-        make: vehicles.make,
-        model: vehicles.model,
-        year: vehicles.year,
-        vin: vehicles.vin,
-        createdAt: vehicles.created_at,
-        updatedAt: vehicles.updated_at,
-      })
-      .from(vehicles)
-      .where(eq(vehicles.id, id))
-      .limit(1);
-
-    return success({
-      id: row.id,
-      clientId: row.clientId,
-      licensePlate: row.licensePlate,
-      description: row.description,
-      make: row.make,
-      model: row.model,
-      year: row.year,
-      vin: row.vin,
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
-    });
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { user } = await validateApiRequest(request);
+    requireAdmin(user);
+    const { id } = await params;
+    await loadVehicle(id);
+    await assertVehicleNotInUse(id);
+    await db.delete(vehicles).where(eq(vehicles.id, id));
+    return success({ id });
   } catch (e) {
     return handleError(e);
   }
