@@ -43,19 +43,21 @@ export function ServiceRow({ value, onChange, onRemove }: Props) {
           onPress={() => onChange({ ...value, costType: 'hourly' })}
           style={[
             styles.toggleBtn,
-            isHourly && { backgroundColor: '#208AEF' },
-            !isHourly && { backgroundColor: theme.background },
+            { backgroundColor: isHourly ? theme.accent : theme.background },
           ]}>
-          <Text style={[styles.toggleText, { color: isHourly ? '#fff' : theme.text }]}>Hourly</Text>
+          <Text style={[styles.toggleText, { color: isHourly ? theme.accentText : theme.textSecondary }]}>
+            Hourly
+          </Text>
         </Pressable>
         <Pressable
           onPress={() => onChange({ ...value, costType: 'fixed' })}
           style={[
             styles.toggleBtn,
-            !isHourly && { backgroundColor: '#208AEF' },
-            isHourly && { backgroundColor: theme.background },
+            { backgroundColor: !isHourly ? theme.accent : theme.background },
           ]}>
-          <Text style={[styles.toggleText, { color: !isHourly ? '#fff' : theme.text }]}>Fixed</Text>
+          <Text style={[styles.toggleText, { color: !isHourly ? theme.accentText : theme.textSecondary }]}>
+            Fixed
+          </Text>
         </Pressable>
       </View>
 
@@ -150,5 +152,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeText: { fontSize: 22, color: '#DC2626', lineHeight: 22 },
+  removeText: { fontSize: 20, color: 'rgba(255,255,255,0.3)', lineHeight: 20 },
 });

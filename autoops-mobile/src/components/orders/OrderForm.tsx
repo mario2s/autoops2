@@ -333,7 +333,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
       </Section>
 
       <Section title="Parts" theme={theme}>
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 8 }}>
           {parts.map((p, i) => (
             <PartRow
               key={i}
@@ -344,17 +344,17 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
           ))}
           <Pressable
             onPress={() => setParts((p) => [...p, emptyPart()])}
-            style={[styles.addBtn, { borderColor: theme.backgroundElement }]}>
-            <Text style={[styles.addBtnText, { color: theme.text }]}>+ Add part</Text>
+            style={[styles.addBtn, { borderColor: theme.border }]}>
+            <Text style={[styles.addBtnText, { color: theme.textSecondary }]}>+ Add part</Text>
           </Pressable>
         </View>
-        <Text style={[styles.subtotal, { color: theme.textSecondary }]}>
-          Subtotal: {formatCurrency(partsTotal)}
+        <Text style={[styles.subtotal, { color: theme.textMuted }]}>
+          Subtotal {formatCurrency(partsTotal)}
         </Text>
       </Section>
 
       <Section title="Services" theme={theme}>
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 8 }}>
           {services.map((s, i) => (
             <ServiceRow
               key={i}
@@ -365,30 +365,34 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
           ))}
           <Pressable
             onPress={() => setServices((s) => [...s, emptyService()])}
-            style={[styles.addBtn, { borderColor: theme.backgroundElement }]}>
-            <Text style={[styles.addBtnText, { color: theme.text }]}>+ Add service</Text>
+            style={[styles.addBtn, { borderColor: theme.border }]}>
+            <Text style={[styles.addBtnText, { color: theme.textSecondary }]}>+ Add service</Text>
           </Pressable>
         </View>
-        <Text style={[styles.subtotal, { color: theme.textSecondary }]}>
-          Subtotal: {formatCurrency(servicesTotal)}
+        <Text style={[styles.subtotal, { color: theme.textMuted }]}>
+          Subtotal {formatCurrency(servicesTotal)}
         </Text>
       </Section>
 
-      <View style={[styles.grandBox, { backgroundColor: theme.backgroundElement }]}>
-        <Text style={[styles.grandLabel, { color: theme.textSecondary }]}>Grand total</Text>
+      <View
+        style={[
+          styles.grandBox,
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+        ]}>
+        <Text style={[styles.grandLabel, { color: theme.textMuted }]}>Total</Text>
         <Text style={[styles.grandValue, { color: theme.text }]}>{formatCurrency(grand)}</Text>
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={[styles.error, { color: theme.danger }]}>{error}</Text> : null}
 
       <Pressable
         onPress={handleSubmit}
         disabled={submitting}
-        style={[styles.submit, { opacity: submitting ? 0.6 : 1 }]}>
+        style={[styles.submit, { backgroundColor: theme.accent, opacity: submitting ? 0.6 : 1 }]}>
         {submitting ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={theme.accentText} />
         ) : (
-          <Text style={styles.submitText}>
+          <Text style={[styles.submitText, { color: theme.accentText }]}>
             {mode === 'create' ? 'Create Order' : 'Save Changes'}
           </Text>
         )}
@@ -440,11 +444,11 @@ function Section({
 }: {
   title: string;
   children: React.ReactNode;
-  theme: { text: string };
+  theme: { textMuted: string };
 }) {
   return (
     <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{title}</Text>
       {children}
     </View>
   );
@@ -452,40 +456,46 @@ function Section({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    gap: 24,
-    paddingBottom: 80,
+    padding: 12,
+    gap: 16,
+    paddingBottom: 60,
   },
-  section: { gap: 12 },
-  sectionTitle: { fontSize: 18, fontWeight: '600' },
-  row: { flexDirection: 'row', gap: 12 },
+  section: { gap: 8 },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  row: { flexDirection: 'row', gap: 10 },
   flex: { flex: 1 },
   addBtn: {
-    height: 44,
-    borderRadius: 10,
-    borderWidth: 1,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 0.5,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addBtnText: { fontSize: 15, fontWeight: '500' },
-  subtotal: { fontSize: 14, textAlign: 'right' },
+  addBtnText: { fontSize: 12, fontWeight: '500' },
+  subtotal: { fontSize: 11, textAlign: 'right' },
   grandBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 12,
-  },
-  grandLabel: { fontSize: 14, fontWeight: '500' },
-  grandValue: { fontSize: 22, fontWeight: '700' },
-  error: { color: '#DC2626', fontSize: 14 },
-  submit: {
-    backgroundColor: '#208AEF',
-    height: 50,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderRadius: 10,
+    borderWidth: 0.5,
+  },
+  grandLabel: { fontSize: 12 },
+  grandValue: { fontSize: 16, fontWeight: '500' },
+  error: { fontSize: 12 },
+  submit: {
+    height: 42,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  submitText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  submitText: { fontSize: 13, fontWeight: '500' },
 });

@@ -101,8 +101,15 @@ export default function EditPartScreen() {
           <Pressable
             onPress={save}
             disabled={submitting || !name.trim()}
-            style={[styles.save, { opacity: submitting || !name.trim() ? 0.6 : 1 }]}>
-            {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Save</Text>}
+            style={[
+              styles.save,
+              { backgroundColor: theme.accent, opacity: submitting || !name.trim() ? 0.6 : 1 },
+            ]}>
+            {submitting ? (
+              <ActivityIndicator color={theme.accentText} />
+            ) : (
+              <Text style={[styles.saveText, { color: theme.accentText }]}>Save</Text>
+            )}
           </Pressable>
         </View>
       )}
@@ -141,12 +148,11 @@ const styles = StyleSheet.create({
   metaVal: { fontSize: 13, fontWeight: '500' },
   error: { color: '#DC2626', fontSize: 14 },
   save: {
-    backgroundColor: '#208AEF',
-    height: 48,
-    borderRadius: 10,
+    height: 42,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
   },
-  saveText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  saveText: { fontWeight: '500', fontSize: 13 },
 });

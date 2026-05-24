@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { CatalogList } from '@/components/catalog/CatalogList';
+import { useCatalogCtaRegister } from '@/components/catalog/CatalogCtaContext';
 import { RowActions } from '@/components/catalog/RowActions';
 import { VehicleModal } from '@/components/catalog/VehicleModal';
 import { confirmAlert } from '@/components/ui/ConfirmDialog';
@@ -22,6 +23,8 @@ export default function VehiclesListScreen() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useCatalogCtaRegister('+ Add vehicle', () => setShowCreate(true));
 
   async function handleDelete(vehicle: Vehicle) {
     const ok = await confirmAlert({
@@ -49,20 +52,24 @@ export default function VehiclesListScreen() {
         ctaLabel="+ Add vehicle"
         onCta={() => setShowCreate(true)}
         refreshKey={refreshKey}
-        renderItem={(v) => {
+        renderItem={(v, { isTablet }) => {
           const makeModel = [v.make, v.model, v.year].filter(Boolean).join(' ');
           const isUnknown = v.clientId === UNKNOWN_CLIENT_ID;
           return (
-            <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
+            <View
+              style={[
+                isTablet ? styles.cardRow : styles.flatRow,
+                { borderColor: isTablet ? theme.border : 'rgba(255,255,255,0.05)', backgroundColor: isTablet ? theme.backgroundElement : 'transparent' },
+              ]}>
               <View style={styles.flex}>
                 <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
                   {vehicleLabel(v)}
                 </Text>
-                <Text style={[styles.meta, { color: theme.textSecondary }]} numberOfLines={1}>
+                <Text style={[styles.meta, { color: theme.textMuted }]} numberOfLines={1}>
                   {makeModel || '—'}
                 </Text>
                 {isUnknown ? (
-                  <Text style={[styles.meta, { color: theme.textSecondary }]}>Unknown client</Text>
+                  <Text style={[styles.meta, { color: theme.textMuted }]}>Unknown client</Text>
                 ) : null}
               </View>
               {isAdmin ? (
@@ -90,14 +97,24 @@ export default function VehiclesListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  row: {
+  flatRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderBottomWidth: 0.5,
+    gap: 8,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 0.5,
     gap: 8,
   },
   flex: { flex: 1 },
-  name: { fontSize: 16, fontWeight: '600' },
-  meta: { fontSize: 13, marginTop: 4 },
+  name: { fontSize: 11, fontWeight: '500' },
+  meta: { fontSize: 9, marginTop: 1 },
 });

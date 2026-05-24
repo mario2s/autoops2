@@ -87,16 +87,19 @@ export default function OrdersListScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <Text style={[styles.title, { color: theme.text }]}>Orders</Text>
-        <Pressable onPress={() => router.push('/orders/new')} style={styles.newBtn}>
-          <Text style={styles.newBtnText}>+ New</Text>
+        <Pressable
+          onPress={() => router.push('/orders/new')}
+          style={[styles.newBtn, { backgroundColor: theme.accent }]}>
+          <Text style={[styles.newBtnText, { color: theme.accentText }]}>+ New</Text>
         </Pressable>
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.pillsScroll}
         contentContainerStyle={styles.pills}>
         {FILTERS.map((f) => {
           const active = filter === f.id;
@@ -107,10 +110,17 @@ export default function OrdersListScreen() {
               style={[
                 styles.pill,
                 {
-                  backgroundColor: active ? '#208AEF' : theme.backgroundElement,
+                  backgroundColor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  borderColor: active ? 'rgba(255,255,255,0.25)' : theme.borderStrong,
                 },
               ]}>
-              <Text style={[styles.pillText, { color: active ? '#fff' : theme.text }]}>{f.label}</Text>
+              <Text
+                style={[
+                  styles.pillText,
+                  { color: active ? theme.text : theme.textSecondary },
+                ]}>
+                {f.label}
+              </Text>
             </Pressable>
           );
         })}
@@ -135,7 +145,7 @@ export default function OrdersListScreen() {
             <OrderCard order={item} onPress={() => router.push(`/orders/${item.id}`)} />
           )}
           contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           onEndReached={onEndReached}
           onEndReachedThreshold={0.4}
@@ -152,27 +162,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 6,
     paddingBottom: 8,
+    borderBottomWidth: 0.5,
   },
-  title: { fontSize: 28, fontWeight: '700' },
+  title: { fontSize: 16, fontWeight: '500' },
   newBtn: {
-    backgroundColor: '#208AEF',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
-  newBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  newBtnText: { fontWeight: '500', fontSize: 12 },
+  pillsScroll: { flexGrow: 0, flexShrink: 0 },
   pills: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 6,
+    alignItems: 'center',
   },
   pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 999,
+    borderWidth: 0.5,
   },
-  pillText: { fontSize: 13, fontWeight: '500' },
-  list: { padding: 16 },
+  pillText: { fontSize: 10, fontWeight: '500' },
+  list: { padding: 12 },
 });

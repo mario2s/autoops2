@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { StatusPalette } from '@/constants/theme';
 import type { OrderStatus } from '@/lib/types';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -8,14 +9,6 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   awaiting: 'Awaiting',
   payment: 'Payment',
   done: 'Done',
-};
-
-const STATUS_COLORS: Record<OrderStatus, { bg: string; fg: string }> = {
-  booked: { bg: '#E0E7FF', fg: '#3730A3' },
-  in_progress: { bg: '#FEF3C7', fg: '#92400E' },
-  awaiting: { bg: '#FCE7F3', fg: '#9D174D' },
-  payment: { bg: '#DBEAFE', fg: '#1E40AF' },
-  done: { bg: '#D1FAE5', fg: '#065F46' },
 };
 
 export function statusLabel(status: OrderStatus): string {
@@ -28,7 +21,7 @@ type Props = {
 };
 
 export function StatusBadge({ status, size = 'md' }: Props) {
-  const colors = STATUS_COLORS[status];
+  const colors = StatusPalette[status];
   return (
     <View
       style={[
@@ -46,7 +39,7 @@ export function StatusBadge({ status, size = 'md' }: Props) {
 const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: 999,
     alignSelf: 'flex-start',
   },
@@ -55,8 +48,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   text: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '500',
   },
   textSm: {
     fontSize: 11,

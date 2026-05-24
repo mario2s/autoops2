@@ -79,102 +79,105 @@ export default function OrderDetailScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={[styles.backText, { color: theme.text }]}>‹ Back</Text>
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
+        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.iconBtn}>
+          <Text style={[styles.backText, { color: theme.textSecondary }]}>‹</Text>
         </Pressable>
         <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
           {vehicleLabel(order.vehicle)}
         </Text>
         {canEdit ? (
-          <Pressable onPress={() => router.push(`/orders/${order.id}/edit`)} style={styles.editBtn}>
-            <Text style={styles.editText}>Edit</Text>
+          <Pressable
+            onPress={() => router.push(`/orders/${order.id}/edit`)}
+            style={[styles.editBtn, { borderColor: theme.borderStrong }]}>
+            <Text style={[styles.editText, { color: theme.textSecondary }]}>Edit</Text>
           </Pressable>
         ) : (
-          <View style={styles.editBtn} />
+          <View style={styles.editBtnGhost} />
         )}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={[styles.statusRow, { backgroundColor: theme.backgroundElement }]}>
+        <View style={styles.statusRow}>
           <StatusBadge status={order.status} />
-          <Pressable onPress={() => setShowStatus(true)} disabled={updating} style={styles.changeBtn}>
-            <Text style={styles.changeText}>Change</Text>
+          <Pressable
+            onPress={() => setShowStatus(true)}
+            disabled={updating}
+            style={[styles.changeBtn, { borderColor: theme.border }]}>
+            <Text style={[styles.changeText, { color: theme.textMuted }]}>Change status</Text>
           </Pressable>
         </View>
 
-        <Section title="Vehicle" theme={theme}>
-          <Field k="Plate / description" v={vehicleLabel(order.vehicle)} theme={theme} />
-          <Field k="Make" v={order.vehicle.make ?? '—'} theme={theme} />
-          <Field k="Model" v={order.vehicle.model ?? '—'} theme={theme} />
-          <Field k="Year" v={order.vehicle.year ? String(order.vehicle.year) : '—'} theme={theme} />
-        </Section>
+        <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>Vehicle & Client</Text>
+        <Field k="Plate / description" v={vehicleLabel(order.vehicle)} theme={theme} />
+        <Field k="Make" v={order.vehicle.make ?? '—'} theme={theme} />
+        <Field k="Model" v={order.vehicle.model ?? '—'} theme={theme} />
+        <Field k="Year" v={order.vehicle.year ? String(order.vehicle.year) : '—'} theme={theme} />
+        <Field k="Client" v={order.client.name} theme={theme} />
+        <Field k="Phone" v={order.client.phone ?? '—'} theme={theme} />
+        <Field k="Email" v={order.client.email ?? '—'} theme={theme} />
+        <Field
+          k="Deadline"
+          v={`${formatDateTime(order.deadline)}${overdue ? ' — overdue' : ''}`}
+          theme={theme}
+          danger={overdue}
+        />
 
-        <Section title="Client" theme={theme}>
-          <Field k="Name" v={order.client.name} theme={theme} />
-          <Field k="Phone" v={order.client.phone ?? '—'} theme={theme} />
-          <Field k="Email" v={order.client.email ?? '—'} theme={theme} />
-        </Section>
-
-        <Section title="Deadline" theme={theme}>
-          <Text style={[styles.deadline, { color: overdue ? '#DC2626' : theme.text }]}>
-            {formatDateTime(order.deadline)}
-            {overdue ? '  (overdue)' : ''}
-          </Text>
-        </Section>
-
-        <Section title="Parts" theme={theme}>
-          {order.parts.length === 0 ? (
-            <Text style={[styles.dim, { color: theme.textSecondary }]}>No parts</Text>
-          ) : (
-            <View>
-              <View style={styles.tableHead}>
-                <Text style={[styles.colName, styles.headText, { color: theme.textSecondary }]}>Name</Text>
-                <Text style={[styles.colNum, styles.headText, { color: theme.textSecondary }]}>Qty</Text>
-                <Text style={[styles.colNum, styles.headText, { color: theme.textSecondary }]}>Unit</Text>
-                <Text style={[styles.colNum, styles.headText, { color: theme.textSecondary }]}>Total</Text>
-              </View>
-              {order.parts.map((p) => (
-                <View key={p.id} style={styles.tableRow}>
-                  <Text style={[styles.colName, { color: theme.text }]} numberOfLines={1}>{p.name}</Text>
-                  <Text style={[styles.colNum, { color: theme.text }]}>{p.qty}</Text>
-                  <Text style={[styles.colNum, { color: theme.text }]}>{formatCurrency(p.unitPrice)}</Text>
-                  <Text style={[styles.colNum, { color: theme.text }]}>{formatCurrency(p.total)}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-          <Text style={[styles.subtotal, { color: theme.textSecondary }]}>
-            Parts subtotal: {formatCurrency(order.totals.parts)}
-          </Text>
-        </Section>
-
-        <Section title="Services" theme={theme}>
-          {order.services.length === 0 ? (
-            <Text style={[styles.dim, { color: theme.textSecondary }]}>No services</Text>
-          ) : (
-            order.services.map((s) => (
-              <View key={s.id} style={[styles.serviceRow, { backgroundColor: theme.backgroundElement }]}>
-                <Text style={[styles.serviceDesc, { color: theme.text }]}>{s.description}</Text>
-                <Text style={[styles.serviceMeta, { color: theme.textSecondary }]}>
-                  {s.costType === 'hourly'
-                    ? `${s.hours} h × ${formatCurrency(s.rate ?? 0)}`
-                    : 'Fixed'}
+        <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>Parts</Text>
+        {order.parts.length === 0 ? (
+          <Text style={[styles.dim, { color: theme.textMuted }]}>No parts</Text>
+        ) : (
+          <View>
+            {order.parts.map((p) => (
+              <View key={p.id} style={[styles.lineRow, { borderBottomColor: 'rgba(255,255,255,0.05)' }]}>
+                <Text style={[styles.lineName, { color: theme.textSecondary }]} numberOfLines={1}>
+                  {p.name}
                 </Text>
-                <Text style={[styles.serviceTotal, { color: theme.text }]}>
+                <Text style={[styles.lineQty, { color: theme.textMuted }]}>×{p.qty}</Text>
+                <Text style={[styles.lineTotal, { color: theme.textMuted }]}>
+                  {formatCurrency(p.total)}
+                </Text>
+              </View>
+            ))}
+            <Text style={[styles.subtotal, { color: theme.textMuted }]}>
+              Subtotal {formatCurrency(order.totals.parts)}
+            </Text>
+          </View>
+        )}
+
+        <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>Services</Text>
+        {order.services.length === 0 ? (
+          <Text style={[styles.dim, { color: theme.textMuted }]}>No services</Text>
+        ) : (
+          <View>
+            {order.services.map((s) => (
+              <View key={s.id} style={[styles.lineRow, { borderBottomColor: 'rgba(255,255,255,0.05)' }]}>
+                <Text style={[styles.lineName, { color: theme.textSecondary }]} numberOfLines={1}>
+                  {s.description}
+                </Text>
+                <Text style={[styles.lineQty, { color: theme.textMuted }]}>
+                  {s.costType === 'hourly' ? `${s.hours}h` : 'Fixed'}
+                </Text>
+                <Text style={[styles.lineTotal, { color: theme.textMuted }]}>
                   {formatCurrency(s.total)}
                 </Text>
               </View>
-            ))
-          )}
-          <Text style={[styles.subtotal, { color: theme.textSecondary }]}>
-            Services subtotal: {formatCurrency(order.totals.services)}
-          </Text>
-        </Section>
+            ))}
+            <Text style={[styles.subtotal, { color: theme.textMuted }]}>
+              Subtotal {formatCurrency(order.totals.services)}
+            </Text>
+          </View>
+        )}
 
-        <View style={[styles.grandBox, { backgroundColor: theme.backgroundElement }]}>
-          <Text style={[styles.grandLabel, { color: theme.textSecondary }]}>Grand total</Text>
-          <Text style={[styles.grandValue, { color: theme.text }]}>{formatCurrency(order.totals.grand)}</Text>
+        <View
+          style={[
+            styles.grandBox,
+            { backgroundColor: 'rgba(255,255,255,0.04)', borderColor: theme.border },
+          ]}>
+          <Text style={[styles.grandLabel, { color: theme.textMuted }]}>Grand total</Text>
+          <Text style={[styles.grandValue, { color: theme.text }]}>
+            {formatCurrency(order.totals.grand)}
+          </Text>
         </View>
       </ScrollView>
 
@@ -188,20 +191,21 @@ export default function OrderDetailScreen() {
   );
 }
 
-function Section({ title, children, theme }: { title: string; children: React.ReactNode; theme: { text: string } }) {
+function Field({
+  k,
+  v,
+  theme,
+  danger,
+}: {
+  k: string;
+  v: string;
+  theme: { text: string; textMuted: string; textSecondary: string; border: string; overdue: string };
+  danger?: boolean;
+}) {
   return (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
-      {children}
-    </View>
-  );
-}
-
-function Field({ k, v, theme }: { k: string; v: string; theme: { text: string; textSecondary: string } }) {
-  return (
-    <View style={styles.field}>
-      <Text style={[styles.fieldKey, { color: theme.textSecondary }]}>{k}</Text>
-      <Text style={[styles.fieldVal, { color: theme.text }]}>{v}</Text>
+    <View style={[styles.field, { borderBottomColor: 'rgba(255,255,255,0.05)' }]}>
+      <Text style={[styles.fieldKey, { color: theme.textMuted }]}>{k}</Text>
+      <Text style={[styles.fieldVal, { color: danger ? theme.overdue : theme.textSecondary }]}>{v}</Text>
     </View>
   );
 }
@@ -211,67 +215,79 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  backBtn: { padding: 6, minWidth: 60 },
-  backText: { fontSize: 16, fontWeight: '500' },
-  title: { flex: 1, fontSize: 18, fontWeight: '600', textAlign: 'center' },
-  editBtn: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
-    minWidth: 60,
-    alignItems: 'flex-end',
+    gap: 8,
+    borderBottomWidth: 0.5,
   },
-  editText: { color: '#208AEF', fontSize: 15, fontWeight: '600' },
-  content: { padding: 16, gap: 20, paddingBottom: 40 },
+  iconBtn: { width: 28, alignItems: 'flex-start', paddingVertical: 4 },
+  backText: { fontSize: 20, fontWeight: '400', lineHeight: 22 },
+  title: { flex: 1, fontSize: 14, fontWeight: '500', textAlign: 'center' },
+  editBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 0.5,
+  },
+  editBtnGhost: { width: 44 },
+  editText: { fontSize: 11, fontWeight: '500' },
+  content: { paddingBottom: 32 },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 14,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  changeBtn: { paddingHorizontal: 12, paddingVertical: 6 },
-  changeText: { color: '#208AEF', fontWeight: '600', fontSize: 14 },
-  section: { gap: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '600' },
-  field: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
-  fieldKey: { fontSize: 14 },
-  fieldVal: { fontSize: 14, fontWeight: '500' },
-  deadline: { fontSize: 15, fontWeight: '500' },
-  dim: { fontSize: 14 },
-  tableHead: {
+  changeBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 0.5,
+  },
+  changeText: { fontSize: 11, fontWeight: '500' },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    paddingHorizontal: 12,
+    paddingTop: 14,
+    paddingBottom: 6,
+  },
+  field: {
     flexDirection: 'row',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderBottomWidth: 0.5,
   },
-  headText: { fontSize: 12, fontWeight: '600' },
-  tableRow: { flexDirection: 'row', paddingVertical: 8 },
-  colName: { flex: 2, fontSize: 14 },
-  colNum: { flex: 1, fontSize: 14, textAlign: 'right' },
-  serviceRow: {
-    padding: 12,
-    borderRadius: 10,
+  fieldKey: { fontSize: 10 },
+  fieldVal: { fontSize: 10, fontWeight: '400' },
+  dim: { fontSize: 11, paddingHorizontal: 10, paddingVertical: 5 },
+  lineRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderBottomWidth: 0.5,
     gap: 8,
-    marginTop: 6,
   },
-  serviceDesc: { flex: 1, fontSize: 14, fontWeight: '500' },
-  serviceMeta: { fontSize: 12 },
-  serviceTotal: { fontSize: 14, fontWeight: '600' },
-  subtotal: { fontSize: 13, textAlign: 'right', marginTop: 6 },
+  lineName: { flex: 1, fontSize: 11 },
+  lineQty: { fontSize: 10, width: 46, textAlign: 'right' },
+  lineTotal: { fontSize: 10, width: 56, textAlign: 'right' },
+  subtotal: { fontSize: 10, textAlign: 'right', paddingHorizontal: 10, paddingTop: 5 },
   grandBox: {
-    padding: 16,
-    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 12,
+    marginHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 0.5,
   },
-  grandLabel: { fontSize: 14, fontWeight: '500' },
-  grandValue: { fontSize: 24, fontWeight: '700' },
+  grandLabel: { fontSize: 12 },
+  grandValue: { fontSize: 15, fontWeight: '500' },
 });

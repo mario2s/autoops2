@@ -178,8 +178,15 @@ export function VehicleModal({
             <Pressable
               onPress={submit}
               disabled={submitting}
-              style={[styles.submit, { opacity: submitting ? 0.6 : 1 }]}>
-              {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Add vehicle</Text>}
+              style={[
+                styles.submit,
+                { backgroundColor: theme.accent, opacity: submitting ? 0.6 : 1 },
+              ]}>
+              {submitting ? (
+                <ActivityIndicator color={theme.accentText} />
+              ) : (
+                <Text style={[styles.submitText, { color: theme.accentText }]}>Add vehicle</Text>
+              )}
             </Pressable>
           </ScrollView>
         </Pressable>
@@ -226,12 +233,11 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   error: { color: '#DC2626', fontSize: 14 },
   submit: {
-    backgroundColor: '#208AEF',
-    height: 48,
-    borderRadius: 10,
+    height: 42,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
   },
-  submitText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  submitText: { fontWeight: '500', fontSize: 13 },
 });

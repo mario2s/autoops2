@@ -18,25 +18,29 @@ export function OrderCard({ order, onPress }: Props) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: theme.backgroundElement, opacity: pressed ? 0.85 : 1 },
+        {
+          backgroundColor: 'rgba(255,255,255,0.04)',
+          borderColor: theme.border,
+          opacity: pressed ? 0.8 : 1,
+        },
       ]}>
       <View style={styles.row}>
         <View style={styles.flex}>
           <Text style={[styles.primary, { color: theme.text }]} numberOfLines={1}>
             {vehicleLabel(order.vehicle)}
           </Text>
-          <Text style={[styles.secondary, { color: theme.textSecondary }]} numberOfLines={1}>
+          <Text style={[styles.secondary, { color: theme.textMuted }]} numberOfLines={1}>
             {order.client.name}
           </Text>
         </View>
-        <StatusBadge status={order.status} size="sm" />
+        <Text style={[styles.total, { color: theme.textSecondary }]}>
+          {formatCurrency(order.totals.grand)}
+        </Text>
       </View>
       <View style={styles.row}>
-        <Text style={[styles.deadline, { color: overdue ? '#DC2626' : theme.textSecondary }]}>
+        <StatusBadge status={order.status} size="sm" />
+        <Text style={[styles.deadline, { color: overdue ? theme.overdue : theme.textMuted }]}>
           {formatDate(order.deadline)}
-        </Text>
-        <Text style={[styles.total, { color: theme.text }]}>
-          {formatCurrency(order.totals.grand)}
         </Text>
       </View>
     </Pressable>
@@ -45,9 +49,11 @@ export function OrderCard({ order, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
-    padding: 14,
-    gap: 8,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    paddingVertical: 9,
+    paddingHorizontal: 10,
+    gap: 7,
   },
   row: {
     flexDirection: 'row',
@@ -56,8 +62,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   flex: { flex: 1 },
-  primary: { fontSize: 16, fontWeight: '600' },
-  secondary: { fontSize: 13, marginTop: 2 },
-  deadline: { fontSize: 13, fontWeight: '500' },
-  total: { fontSize: 15, fontWeight: '600' },
+  primary: { fontSize: 12, fontWeight: '500' },
+  secondary: { fontSize: 10, marginTop: 1 },
+  deadline: { fontSize: 10 },
+  total: { fontSize: 11 },
 });

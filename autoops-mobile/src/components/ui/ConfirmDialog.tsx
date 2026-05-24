@@ -62,7 +62,7 @@ export function ConfirmDialog({
               <Text style={[styles.btnText, { color: theme.text }]}>{cancelLabel}</Text>
             </Pressable>
             <Pressable onPress={onConfirm} style={styles.btn}>
-              <Text style={[styles.btnText, { color: destructive ? '#DC2626' : '#208AEF' }]}>{confirmLabel}</Text>
+              <Text style={[styles.btnText, { color: destructive ? theme.danger : theme.text }]}>{confirmLabel}</Text>
             </Pressable>
           </View>
         </Pressable>

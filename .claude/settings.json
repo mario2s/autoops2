@@ -11,7 +11,15 @@
       "Bash(node -e \"const p = require\\('/Users/mario/Documents/autoops2/node_modules/inline-style-prefixer/package.json'\\); console.log\\('version:', p.version, 'main:', p.main\\)\")",
       "Bash(npm ls *)",
       "Bash(npm view *)",
-      "Bash(python3 -c \"import json,sys; vs=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\([v for v in vs if v.startswith\\('3.25.'\\) or v.startswith\\('3.26'\\) or v.startswith\\('3.27'\\) or v.startswith\\('3.28'\\) or v.startswith\\('3.29'\\) or v.startswith\\('3.30'\\)]\\)\\)\")"
+      "Bash(python3 -c \"import json,sys; vs=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\([v for v in vs if v.startswith\\('3.25.'\\) or v.startswith\\('3.26'\\) or v.startswith\\('3.27'\\) or v.startswith\\('3.28'\\) or v.startswith\\('3.29'\\) or v.startswith\\('3.30'\\)]\\)\\)\")",
+      "Bash(ps -p 88894 -o pid,command)",
+      "Bash(kill 88894)",
+      "Bash(lsof -iTCP -sTCP:LISTEN -P -n)",
+      "Bash(grep -n \"ScrollView\\\\s*$\\\\|ScrollView \" /Users/mario/Documents/autoops2/autoops-mobile/src/app/\\\\\\(app\\\\\\)/orders/index.tsx)",
+      "Bash(find /Users/mario -name \"autoops_mobile_screens.html\" 2>/dev/null)",
+      "Read(//Users/mario/**)",
+      "Bash(kill 99146 80009)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); pkgs=d.get\\('packages',{}\\); print\\('react:', pkgs.get\\('node_modules/react',{}\\).get\\('version','?'\\)\\); print\\('react-dom:', pkgs.get\\('node_modules/react-dom',{}\\).get\\('version','?'\\)\\)\")"
     ]
   }
 }

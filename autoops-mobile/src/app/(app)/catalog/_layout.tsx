@@ -2,6 +2,10 @@ import { Slot, router, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  CatalogCtaProvider,
+  useCatalogCta,
+} from '@/components/catalog/CatalogCtaContext';
 import { useTheme } from '@/hooks/use-theme';
 
 const TABS = [
@@ -10,13 +14,12 @@ const TABS = [
   { key: 'vehicles', label: 'Vehicles', path: '/catalog/vehicles' },
 ] as const;
 
-export default function CatalogLayout() {
+function CatalogInner() {
   const theme = useTheme();
   const pathname = usePathname();
+  const { cta } = useCatalogCta();
 
-  // Hide top tabs on edit screens (they are deeper)
   const isEditScreen = /\/catalog\/(parts|clients|vehicles)\/[^/]+\/edit$/.test(pathname);
-
   const active = TABS.find((t) => pathname.startsWith(t.path));
 
   if (isEditScreen) {
@@ -25,25 +28,26 @@ export default function CatalogLayout() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <Text style={[styles.title, { color: theme.text }]}>Catalog</Text>
+        {cta ? (
+          <Pressable
+            onPress={cta.onPress}
+            style={[styles.headerBtn, { backgroundColor: theme.accent }]}>
+            <Text style={[styles.headerBtnText, { color: theme.accentText }]}>{cta.label}</Text>
+          </Pressable>
+        ) : null}
       </View>
-      <View style={[styles.tabBar, { borderBottomColor: theme.backgroundElement }]}>
+      <View style={[styles.tabBar, { borderBottomColor: theme.border }]}>
         {TABS.map((t) => {
           const isActive = active?.key === t.key;
           return (
             <Pressable
               key={t.key}
               onPress={() => router.replace(t.path as any)}
-              style={[
-                styles.tab,
-                isActive && { borderBottomColor: '#208AEF' },
-              ]}>
+              style={[styles.tab, isActive && { borderBottomColor: theme.text }]}>
               <Text
-                style={[
-                  styles.tabText,
-                  { color: isActive ? '#208AEF' : theme.textSecondary },
-                ]}>
+                style={[styles.tabText, { color: isActive ? theme.text : theme.textMuted }]}>
                 {t.label}
               </Text>
             </Pressable>
@@ -57,22 +61,43 @@ export default function CatalogLayout() {
   );
 }
 
+export default function CatalogLayout() {
+  return (
+    <CatalogCtaProvider>
+      <CatalogInner />
+    </CatalogCtaProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 6,
+    paddingBottom: 8,
+    borderBottomWidth: 0.5,
+  },
+  title: { fontSize: 16, fontWeight: '500' },
+  headerBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  headerBtnText: { fontSize: 11, fontWeight: '500' },
   tabBar: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    paddingHorizontal: 8,
+    borderBottomWidth: 0.5,
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 9,
     alignItems: 'center',
-    borderBottomWidth: 2,
+    borderBottomWidth: 1.5,
     borderBottomColor: 'transparent',
   },
-  tabText: { fontSize: 15, fontWeight: '600' },
+  tabText: { fontSize: 11, fontWeight: '500' },
   content: { flex: 1 },
 });

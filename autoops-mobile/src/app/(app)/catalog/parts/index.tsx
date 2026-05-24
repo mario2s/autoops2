@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { CatalogList } from '@/components/catalog/CatalogList';
+import { useCatalogCtaRegister } from '@/components/catalog/CatalogCtaContext';
 import { PartModal } from '@/components/catalog/PartModal';
 import { RowActions } from '@/components/catalog/RowActions';
 import { confirmAlert } from '@/components/ui/ConfirmDialog';
@@ -21,6 +22,8 @@ export default function PartsListScreen() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useCatalogCtaRegister('+ Add part', () => setShowCreate(true));
 
   async function handleDelete(part: Part) {
     const ok = await confirmAlert({
@@ -49,13 +52,17 @@ export default function PartsListScreen() {
         ctaLabel="+ Add part"
         onCta={() => setShowCreate(true)}
         refreshKey={refreshKey}
-        renderItem={(part) => (
-          <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
+        renderItem={(part, { isTablet }) => (
+          <View
+            style={[
+              isTablet ? styles.cardRow : styles.flatRow,
+              { borderColor: isTablet ? theme.border : 'rgba(255,255,255,0.05)', backgroundColor: isTablet ? theme.backgroundElement : 'transparent' },
+            ]}>
             <View style={styles.flex}>
               <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
                 {part.name}
               </Text>
-              <Text style={[styles.meta, { color: theme.textSecondary }]}>
+              <Text style={[styles.meta, { color: theme.textMuted }]}>
                 Added {formatDate(part.createdAt)}
               </Text>
             </View>
@@ -83,14 +90,24 @@ export default function PartsListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  row: {
+  flatRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderBottomWidth: 0.5,
+    gap: 8,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 0.5,
     gap: 8,
   },
   flex: { flex: 1 },
-  name: { fontSize: 16, fontWeight: '600' },
-  meta: { fontSize: 12, marginTop: 4 },
+  name: { fontSize: 11, fontWeight: '500' },
+  meta: { fontSize: 9, marginTop: 1 },
 });

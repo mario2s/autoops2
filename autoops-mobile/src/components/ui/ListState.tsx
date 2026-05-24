@@ -14,13 +14,15 @@ export function ListState({ state, message, ctaLabel, onCta }: Props) {
   return (
     <View style={styles.container}>
       {state === 'loading' ? (
-        <ActivityIndicator color={theme.text} />
+        <ActivityIndicator color={theme.textSecondary} />
       ) : (
-        <Text style={[styles.message, { color: theme.textSecondary }]}>{message ?? (state === 'empty' ? 'Nothing here yet' : 'Something went wrong')}</Text>
+        <Text style={[styles.message, { color: theme.textMuted }]}>
+          {message ?? (state === 'empty' ? 'Nothing here yet' : 'Something went wrong')}
+        </Text>
       )}
       {state !== 'loading' && ctaLabel && onCta ? (
-        <Pressable onPress={onCta} style={[styles.cta, { backgroundColor: '#208AEF' }]}>
-          <Text style={styles.ctaText}>{ctaLabel}</Text>
+        <Pressable onPress={onCta} style={[styles.cta, { backgroundColor: theme.accent }]}>
+          <Text style={[styles.ctaText, { color: theme.accentText }]}>{ctaLabel}</Text>
         </Pressable>
       ) : null}
     </View>
@@ -32,22 +34,21 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
-    gap: 16,
+    padding: 24,
+    gap: 12,
   },
   message: {
-    fontSize: 15,
+    fontSize: 12,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 18,
   },
   cta: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 8,
   },
   ctaText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 15,
+    fontWeight: '500',
+    fontSize: 12,
   },
 });

@@ -16,7 +16,12 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "expo-router": "55.0.15",
+    "expo-router": "~55.0.16",
     "react-native-web": "~0.21.0"
+  },
+  "dependencies": {
+    "expo": "~55.0.26",
+    "react": "19.2.6",
+    "react-native": "0.83.6"
   }
 }

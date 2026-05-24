@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { CatalogList } from '@/components/catalog/CatalogList';
+import { useCatalogCtaRegister } from '@/components/catalog/CatalogCtaContext';
 import { ClientModal } from '@/components/catalog/ClientModal';
 import { RowActions } from '@/components/catalog/RowActions';
 import { confirmAlert } from '@/components/ui/ConfirmDialog';
@@ -21,6 +22,8 @@ export default function ClientsListScreen() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useCatalogCtaRegister('+ Add client', () => setShowCreate(true));
 
   async function handleDelete(client: Client) {
     const ok = await confirmAlert({
@@ -48,15 +51,19 @@ export default function ClientsListScreen() {
         ctaLabel="+ Add client"
         onCta={() => setShowCreate(true)}
         refreshKey={refreshKey}
-        renderItem={(c) => {
+        renderItem={(c, { isTablet }) => {
           const isUnknown = c.id === UNKNOWN_CLIENT_ID;
           return (
-            <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
+            <View
+              style={[
+                isTablet ? styles.cardRow : styles.flatRow,
+                { borderColor: isTablet ? theme.border : 'rgba(255,255,255,0.05)', backgroundColor: isTablet ? theme.backgroundElement : 'transparent' },
+              ]}>
               <View style={styles.flex}>
                 <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
                   {c.name}
                 </Text>
-                <Text style={[styles.meta, { color: theme.textSecondary }]} numberOfLines={1}>
+                <Text style={[styles.meta, { color: theme.textMuted }]} numberOfLines={1}>
                   {[c.phone, c.email].filter(Boolean).join(' · ') || '—'}
                 </Text>
               </View>
@@ -85,14 +92,24 @@ export default function ClientsListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  row: {
+  flatRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderBottomWidth: 0.5,
+    gap: 8,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 0.5,
     gap: 8,
   },
   flex: { flex: 1 },
-  name: { fontSize: 16, fontWeight: '600' },
-  meta: { fontSize: 13, marginTop: 4 },
+  name: { fontSize: 11, fontWeight: '500' },
+  meta: { fontSize: 9, marginTop: 1 },
 });

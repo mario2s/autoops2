@@ -102,5 +102,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeText: { fontSize: 22, color: '#DC2626', lineHeight: 22 },
+  removeText: { fontSize: 20, color: 'rgba(255,255,255,0.3)', lineHeight: 20 },
 });

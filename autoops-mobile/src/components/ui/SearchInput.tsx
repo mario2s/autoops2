@@ -49,7 +49,11 @@ export function SearchInput({
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.backgroundElement }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.backgroundElement, borderColor: theme.borderStrong },
+      ]}>
       <TextInput
         value={internal}
         onChangeText={handleChange}
@@ -64,11 +68,12 @@ export function SearchInput({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 10,
-    paddingHorizontal: 14,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 0.5,
   },
   input: {
-    height: 44,
-    fontSize: 16,
+    height: 38,
+    fontSize: 14,
   },
 });

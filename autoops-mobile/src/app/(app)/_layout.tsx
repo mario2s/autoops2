@@ -10,11 +10,13 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#208AEF',
-        tabBarInactiveTintColor: theme.textSecondary,
+        tabBarActiveTintColor: theme.text,
+        tabBarInactiveTintColor: theme.textMuted,
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
         tabBarStyle: {
           backgroundColor: theme.background,
-          borderTopColor: theme.backgroundElement,
+          borderTopColor: theme.border,
+          borderTopWidth: StyleHairline(),
           ...(Platform.OS === 'web' ? { height: 60 } : null),
         },
       }}>
@@ -22,6 +24,7 @@ export default function AppLayout() {
         name="orders"
         options={{
           title: 'Orders',
+          tabBarLabel: 'Orders',
           tabBarIcon: ({ color, size }) => <Ionicons name="clipboard-outline" color={color} size={size} />,
         }}
       />
@@ -29,6 +32,7 @@ export default function AppLayout() {
         name="catalog"
         options={{
           title: 'Catalog',
+          tabBarLabel: 'Catalog',
           tabBarIcon: ({ color, size }) => <Ionicons name="library-outline" color={color} size={size} />,
         }}
       />
@@ -36,9 +40,14 @@ export default function AppLayout() {
         name="profile"
         options={{
           title: 'Profile',
+          tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} />,
         }}
       />
     </Tabs>
   );
+}
+
+function StyleHairline() {
+  return Platform.OS === 'web' ? 1 : 0.5;
 }

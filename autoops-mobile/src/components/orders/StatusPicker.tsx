@@ -32,7 +32,7 @@ export function StatusPicker({ visible, current, onSelect, onClose }: Props) {
                 { backgroundColor: pressed ? theme.backgroundElement : 'transparent' },
               ]}>
               <Text style={[styles.optionText, { color: theme.text }]}>{statusLabel(s)}</Text>
-              {current === s ? <Text style={styles.check}>✓</Text> : null}
+              {current === s ? <Text style={[styles.check, { color: theme.text }]}>✓</Text> : null}
             </Pressable>
           ))}
         </Pressable>
@@ -72,5 +72,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   optionText: { fontSize: 16 },
-  check: { color: '#208AEF', fontSize: 18, fontWeight: '600' },
+  check: { fontSize: 16, fontWeight: '500' },
 });

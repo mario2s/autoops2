@@ -10,18 +10,40 @@ import { Platform } from 'react-native';
 export const Colors = {
   light: {
     text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    textMuted: '#9499A4',
+    background: '#ffffff',
+    backgroundElement: '#F4F4F6',
+    backgroundSelected: '#E8E9EE',
+    border: 'rgba(0,0,0,0.08)',
+    borderStrong: 'rgba(0,0,0,0.15)',
+    accent: '#000000',
+    accentText: '#ffffff',
+    danger: '#DC2626',
+    overdue: '#DC2626',
   },
   dark: {
     text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    textSecondary: 'rgba(255,255,255,0.5)',
+    textMuted: 'rgba(255,255,255,0.3)',
+    background: '#0d0d0d',
+    backgroundElement: '#1a1a1a',
+    backgroundSelected: '#242424',
+    border: 'rgba(255,255,255,0.08)',
+    borderStrong: 'rgba(255,255,255,0.15)',
+    accent: '#ffffff',
+    accentText: '#000000',
+    danger: '#f09595',
+    overdue: '#f09595',
   },
+} as const;
+
+export const StatusPalette = {
+  booked: { bg: 'rgba(55,138,221,0.15)', fg: '#85b7eb' },
+  in_progress: { bg: 'rgba(29,158,117,0.15)', fg: '#5dcaa5' },
+  awaiting: { bg: 'rgba(186,117,23,0.15)', fg: '#fac775' },
+  payment: { bg: 'rgba(147,65,221,0.15)', fg: '#c49af5' },
+  done: { bg: 'rgba(255,255,255,0.08)', fg: 'rgba(255,255,255,0.65)' },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;

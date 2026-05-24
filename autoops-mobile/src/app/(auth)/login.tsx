@@ -57,52 +57,71 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.inner}>
           <Text style={[styles.title, { color: theme.text }]}>AutoOps</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Sign in to continue
-          </Text>
+          <Text style={[styles.subtitle, { color: theme.textMuted }]}>Car shop operations</Text>
 
           <View style={styles.form}>
             <View>
-              <Text style={[styles.label, { color: theme.textSecondary }]}>Email</Text>
+              <Text style={[styles.label, { color: theme.textMuted }]}>Email</Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="you@example.com"
-                placeholderTextColor={theme.textSecondary}
+                placeholderTextColor={theme.textMuted}
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
-                style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+                style={[
+                  styles.input,
+                  {
+                    color: theme.text,
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.border,
+                  },
+                ]}
               />
             </View>
 
             <View>
-              <Text style={[styles.label, { color: theme.textSecondary }]}>Password</Text>
+              <Text style={[styles.label, { color: theme.textMuted }]}>Password</Text>
               <TextInput
                 value={password}
                 onChangeText={setPassword}
                 placeholder="••••••••"
-                placeholderTextColor={theme.textSecondary}
+                placeholderTextColor={theme.textMuted}
                 secureTextEntry
-                style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+                style={[
+                  styles.input,
+                  {
+                    color: theme.text,
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.border,
+                  },
+                ]}
               />
             </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? <Text style={[styles.error, { color: theme.danger }]}>{error}</Text> : null}
 
             <Pressable
               onPress={submit}
-              disabled={submitting || !email || !password}
+              disabled={submitting}
               style={[
                 styles.button,
-                { opacity: submitting || !email || !password ? 0.6 : 1 },
+                {
+                  backgroundColor: theme.accent,
+                  opacity: submitting ? 0.7 : 1,
+                },
               ]}>
               {submitting ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={theme.accentText} />
               ) : (
-                <Text style={styles.buttonText}>Sign in</Text>
+                <Text style={[styles.buttonText, { color: theme.accentText }]}>Log in</Text>
               )}
             </Pressable>
+
+            <Text style={[styles.footerHint, { color: theme.textMuted }]}>
+              Register on the web app
+            </Text>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -115,46 +134,53 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   inner: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     justifyContent: 'center',
-    gap: 8,
+    gap: 4,
   },
   title: {
-    fontSize: 40,
-    fontWeight: '700',
-    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: '500',
+    textAlign: 'center',
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 24,
   },
-  form: { gap: 16 },
+  form: { gap: 10 },
   label: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '500',
-    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   input: {
-    height: 48,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    fontSize: 16,
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    paddingHorizontal: 12,
+    fontSize: 13,
   },
   button: {
-    backgroundColor: '#208AEF',
-    height: 48,
-    borderRadius: 10,
+    height: 40,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
   },
   error: {
-    color: '#DC2626',
-    fontSize: 14,
+    fontSize: 12,
+  },
+  footerHint: {
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

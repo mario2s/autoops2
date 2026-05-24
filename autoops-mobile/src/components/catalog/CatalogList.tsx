@@ -2,10 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   RefreshControl,
   StyleSheet,
-  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -97,17 +95,12 @@ export function CatalogList<T extends { id: string }>({
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
-        <View style={styles.flex}>
-          <SearchInput
-            value={searchText}
-            onChangeText={setSearchText}
-            onDebouncedChange={setDebouncedTerm}
-            placeholder={searchPlaceholder}
-          />
-        </View>
-        <Pressable onPress={onCta} style={styles.ctaSmall}>
-          <Text style={styles.ctaSmallText}>{ctaLabel}</Text>
-        </Pressable>
+        <SearchInput
+          value={searchText}
+          onChangeText={setSearchText}
+          onDebouncedChange={setDebouncedTerm}
+          placeholder={searchPlaceholder}
+        />
       </View>
 
       {loading ? (
@@ -127,7 +120,9 @@ export function CatalogList<T extends { id: string }>({
             <View style={isTablet ? { flex: 1 } : undefined}>{renderItem(item, { isTablet })}</View>
           )}
           contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ItemSeparatorComponent={
+            isTablet ? () => <View style={{ height: 10 }} /> : undefined
+          }
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           onEndReached={onEndReached}
           onEndReachedThreshold={0.4}
@@ -147,19 +142,8 @@ export function CatalogList<T extends { id: string }>({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   searchBar: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  flex: { flex: 1 },
-  ctaSmall: {
-    backgroundColor: '#208AEF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  ctaSmallText: { color: '#fff', fontWeight: '600', fontSize: 14 },
-  list: { padding: 16, paddingTop: 4 },
+  list: { paddingHorizontal: 0, paddingTop: 0, paddingBottom: 16 },
 });

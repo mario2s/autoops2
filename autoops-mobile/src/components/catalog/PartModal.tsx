@@ -71,8 +71,15 @@ export function PartModal({ visible, onClose, onCreated }: Props) {
           <Pressable
             onPress={submit}
             disabled={!name.trim() || submitting}
-            style={[styles.submit, { opacity: !name.trim() || submitting ? 0.6 : 1 }]}>
-            {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Add to catalog</Text>}
+            style={[
+              styles.submit,
+              { backgroundColor: theme.accent, opacity: !name.trim() || submitting ? 0.6 : 1 },
+            ]}>
+            {submitting ? (
+              <ActivityIndicator color={theme.accentText} />
+            ) : (
+              <Text style={[styles.submitText, { color: theme.accentText }]}>Add to catalog</Text>
+            )}
           </Pressable>
         </Pressable>
       </Pressable>
@@ -107,12 +114,11 @@ const styles = StyleSheet.create({
   },
   error: { color: '#DC2626', fontSize: 14 },
   submit: {
-    backgroundColor: '#208AEF',
-    height: 48,
-    borderRadius: 10,
+    height: 42,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
   },
-  submitText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  submitText: { fontWeight: '500', fontSize: 13 },
 });
