@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const lock = require\\('/Users/mario/Documents/autoops2/package-lock.json'\\); const v = lock.packages['node_modules/expo']; console.log\\('expo deps with zod:', Object.keys\\(v.dependencies||{}\\).filter\\(k=>k.includes\\('zod'\\)\\)\\)\")",
+      "Bash(node -e \"const lock = require\\('/Users/mario/Documents/autoops2/package-lock.json'\\); console.log\\('expo at root:', !!lock.packages['node_modules/expo'], lock.packages['node_modules/expo']?.version\\); console.log\\('expo in mobile:', !!lock.packages['autoops-mobile/node_modules/expo'], lock.packages['autoops-mobile/node_modules/expo']?.version\\)\")",
+      "Bash(node -e \"const p = require\\('/Users/mario/Documents/autoops2/node_modules/https-proxy-agent/package.json'\\); console.log\\('version:', p.version, 'main:', p.main\\)\")",
+      "Bash(node -e \"const p = require\\('/Users/mario/Documents/autoops2/node_modules/https-proxy-agent/package.json'\\); console.log\\('version:', p.version\\)\")",
+      "Bash(kill 84163 84701)",
+      "Bash(node -e \"const lock = require\\('/Users/mario/Documents/autoops2/package-lock.json'\\); const keys = Object.keys\\(lock.packages\\).filter\\(k => k.endsWith\\('/semver'\\)\\); console.log\\(keys.map\\(k => k + ' -> ' + lock.packages[k].version\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(pkill -f \"expo start\")",
+      "Bash(node -e \"const p = require\\('/Users/mario/Documents/autoops2/node_modules/inline-style-prefixer/package.json'\\); console.log\\('version:', p.version, 'main:', p.main\\)\")",
+      "Bash(npm ls *)",
+      "Bash(npm view *)",
+      "Bash(python3 -c \"import json,sys; vs=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\([v for v in vs if v.startswith\\('3.25.'\\) or v.startswith\\('3.26'\\) or v.startswith\\('3.27'\\) or v.startswith\\('3.28'\\) or v.startswith\\('3.29'\\) or v.startswith\\('3.30'\\)]\\)\\)\")"
+    ]
+  }
+}

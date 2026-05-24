@@ -11,9 +11,12 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w autoops-web\" \"npm run start -w autoops-mobile\"",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "postinstall": "node scripts/patch-zod.js"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "expo-router": "55.0.15",
+    "react-native-web": "~0.21.0"
   }
 }
