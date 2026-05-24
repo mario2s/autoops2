@@ -1,3 +1,94 @@
+# AutoOps
+
+Car shop operations management system — repair order lifecycle, client and vehicle tracking, parts catalog, and business insights.
+
+---
+
+## Monorepo Structure
+
+This is an npm workspace monorepo with two packages.
+
+```
+autoops2/                          npm workspace root
+├── package.json                   workspaces config; root dev/build scripts
+│
+├── autoops-web/                   Next.js web app (back-end + admin UI)
+│   ├── src/
+│   │   ├── actions/               Server Actions
+│   │   │   ├── auth.ts            login, register
+│   │   │   ├── orders.ts          create/update orders, vehicles, clients, mechanic assignment
+│   │   │   ├── admin.ts           account management
+│   │   │   └── delete.ts          order deletion
+│   │   ├── app/
+│   │   │   ├── (app)/             authenticated routes (JWT middleware-gated)
+│   │   │   │   ├── dashboard/     orders list with status and mechanic controls
+│   │   │   │   ├── orders/        order create + edit forms
+│   │   │   │   ├── catalog/       parts, clients, and vehicles tabs
+│   │   │   │   ├── clients/       client create + edit (with vehicle list)
+│   │   │   │   ├── vehicles/      vehicle create + edit
+│   │   │   │   ├── insights/      admin-only analytics
+│   │   │   │   └── admin/         mechanic account management + hourly rate
+│   │   │   ├── (auth)/            public routes
+│   │   │   │   ├── login/
+│   │   │   │   └── register/
+│   │   │   └── api/
+│   │   │       ├── order-form/    typeahead search (vehicles, clients, parts, mechanics)
+│   │   │       └── suggestions/   general suggestion endpoint
+│   │   ├── components/
+│   │   │   ├── orders/            OrderForm, StatusBadge, MechanicBadge, modals
+│   │   │   └── catalog/           client/vehicle/parts-catalog forms and modals
+│   │   ├── db/
+│   │   │   ├── schema.ts          Drizzle table definitions
+│   │   │   ├── queries.ts         all read queries
+│   │   │   ├── migrations/        SQL migration files (Drizzle Kit)
+│   │   │   ├── seed.ts            base seed (users, clients, vehicles, parts)
+│   │   │   └── seed-orders.ts     order seed with parts and services
+│   │   ├── lib/
+│   │   │   └── session.ts         JWT session helpers (jose)
+│   │   └── middleware.ts           route auth guard
+│   ├── drizzle.config.ts
+│   └── next.config.ts
+│
+└── autoops-mobile/                React Native / Expo mobile app
+    └── src/
+        ├── app/                   Expo Router screens (_layout, index, explore)
+        ├── components/            shared UI (tabs, themed text/view, icons)
+        ├── constants/             theme tokens
+        └── hooks/                 color scheme + theme hooks
+```
+
+### Root scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Starts both web (`next dev`) and mobile (`expo start`) in parallel |
+| `npm run build` | Builds all workspaces |
+
+### Web scripts (`-w autoops-web`)
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Next.js dev server |
+| `npm run build` | Production build |
+| `npm run db:generate` | Generate Drizzle migrations from schema changes |
+| `npm run db:migrate` | Apply pending migrations to the database |
+| `npm run db:studio` | Open Drizzle Studio (DB browser) |
+| `npm run db:seed` | Seed base data |
+| `npm run db:seed-orders` | Seed realistic order data |
+
+### Mobile scripts (`-w autoops-mobile`)
+
+| Command | What it does |
+|---|---|
+| `npm run start` | Expo dev server |
+| `npm run ios` | Run on iOS simulator |
+| `npm run android` | Run on Android emulator |
+| `npm run web` | Run in browser via Expo Web |
+
+---
+
+## Order Statuses
+
 | Status | Meaning |
 |---|---|
 | **Booked** | Order created, work not yet started |
