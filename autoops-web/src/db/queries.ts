@@ -10,6 +10,7 @@ export type OrderRow = {
   deadline: Date;
   vehicleDisplay: string;
   clientName: string;
+  mechanicId: string;
   mechanicName: string;
   total: number;
 };
@@ -48,6 +49,7 @@ export async function getOrdersPage({
       vehiclePlate: vehicles.license_plate,
       vehicleDesc: vehicles.description,
       clientName: clients.name,
+      mechanicId: orders.mechanic_id,
       mechanicName: users.name,
       total: sql<string>`COALESCE((
         SELECT SUM(op.qty::numeric * op.unit_price::numeric)
@@ -75,6 +77,7 @@ export async function getOrdersPage({
       deadline: r.deadline,
       vehicleDisplay: r.vehiclePlate ?? r.vehicleDesc ?? 'Unknown vehicle',
       clientName: r.clientName,
+      mechanicId: r.mechanicId,
       mechanicName: r.mechanicName,
       total: parseFloat(r.total),
     })),
@@ -164,6 +167,7 @@ export type OrderForEdit = {
   deadline: Date;
   status: OrderStatus;
   mechanicId: string;
+  mechanicName: string;
   parts: {
     id: string;
     catalogPartId: string;
@@ -193,10 +197,12 @@ export async function getOrderForEdit(orderId: string): Promise<OrderForEdit | n
       deadline: orders.deadline,
       status: orders.status,
       mechanicId: orders.mechanic_id,
+      mechanicName: users.name,
     })
     .from(orders)
     .innerJoin(vehicles, eq(orders.vehicle_id, vehicles.id))
     .innerJoin(clients, eq(orders.client_id, clients.id))
+    .innerJoin(users, eq(orders.mechanic_id, users.id))
     .where(eq(orders.id, orderId))
     .limit(1);
 
@@ -238,6 +244,7 @@ export async function getOrderForEdit(orderId: string): Promise<OrderForEdit | n
     deadline: row.deadline,
     status: row.status as OrderStatus,
     mechanicId: row.mechanicId,
+    mechanicName: row.mechanicName,
     parts: parts.map((p) => ({
       id: p.id,
       catalogPartId: p.catalogPartId,
@@ -269,6 +276,18 @@ export async function getClientById(id: string) {
     .where(eq(clients.id, id))
     .limit(1);
   return rows[0] ?? null;
+}
+
+export async function getVehiclesByClientId(clientId: string): Promise<{ id: string; licensePlate: string | null; description: string | null }[]> {
+  return db
+    .select({
+      id: vehicles.id,
+      licensePlate: vehicles.license_plate,
+      description: vehicles.description,
+    })
+    .from(vehicles)
+    .where(eq(vehicles.client_id, clientId))
+    .orderBy(vehicles.license_plate, vehicles.description);
 }
 
 export async function getVehicleById(id: string) {
@@ -440,6 +459,14 @@ export async function getMechanicsForAdmin(): Promise<MechanicRow[]> {
     createdAt: r.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     orderCount: Number(r.orderCount),
   }));
+}
+
+export async function getAllMechanics(): Promise<{ id: string; name: string }[]> {
+  return db
+    .select({ id: users.id, name: users.name })
+    .from(users)
+    .where(eq(users.status, 'active'))
+    .orderBy(users.name);
 }
 
 export async function getAppSetting(key: string): Promise<string | null> {

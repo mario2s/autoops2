@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { parts_catalog, clients, vehicles } from '@/db/schema';
+import { parts_catalog, clients, vehicles, users } from '@/db/schema';
 import { and, eq, ilike, or } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {
@@ -46,6 +46,15 @@ export async function GET(req: NextRequest) {
       .from(vehicles)
       .innerJoin(clients, eq(vehicles.client_id, clients.id))
       .where(where)
+      .limit(8);
+    return NextResponse.json({ results: rows });
+  }
+
+  if (type === 'mechanics') {
+    const rows = await db
+      .select({ id: users.id, name: users.name })
+      .from(users)
+      .where(ilike(users.name, pattern))
       .limit(8);
     return NextResponse.json({ results: rows });
   }

@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
-import { getOrdersPage } from '@/db/queries';
+import { getOrdersPage, getAllMechanics } from '@/db/queries';
 import DeleteButton from '@/components/DeleteButton';
 import { deleteOrderAction } from '@/actions/delete';
 import StatusBadge from '@/components/orders/StatusBadge';
+import MechanicBadge from '@/components/orders/MechanicBadge';
 
 const PAGE_SIZE = 20;
 
@@ -50,12 +51,15 @@ export default async function DashboardPage({
   const status = params.status || 'in_progress';
   const page = Math.max(1, parseInt(params.page || '1', 10));
 
-  const { orders, total } = await getOrdersPage({
-    status: status === 'all' ? null : status,
-    page,
-    pageSize: PAGE_SIZE,
-    mechanicId: session.role === 'mechanic' ? session.userId : undefined,
-  });
+  const [{ orders, total }, mechanics] = await Promise.all([
+    getOrdersPage({
+      status: status === 'all' ? null : status,
+      page,
+      pageSize: PAGE_SIZE,
+      mechanicId: session.role === 'mechanic' ? session.userId : undefined,
+    }),
+    isAdmin ? getAllMechanics() : Promise.resolve([]),
+  ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
@@ -145,9 +149,18 @@ export default async function DashboardPage({
                 </div>
 
                 {/* Mechanic */}
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
+                <div className="relative z-10 sm:self-center">
                   <span className="sm:hidden text-xs text-zinc-400 mr-1">Mechanic:</span>
-                  {order.mechanicName}
+                  {isAdmin ? (
+                    <MechanicBadge
+                      orderId={order.id}
+                      mechanicId={order.mechanicId}
+                      mechanicName={order.mechanicName}
+                      mechanics={mechanics}
+                    />
+                  ) : (
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">{order.mechanicName}</span>
+                  )}
                 </div>
 
                 {/* Status badge */}

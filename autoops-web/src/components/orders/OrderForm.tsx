@@ -206,11 +206,14 @@ function useSearch<T>(fetchUrl: (q: string) => string) {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
+type MechanicOption = { id: string; name: string };
+
 type Props = {
   mode: 'create' | 'edit';
   session: SessionUser;
   hourlyRate: number;
   unknownClientId: string;
+  mechanics: MechanicOption[];
   initialData?: OrderForEdit;
   orderId?: string;
 };
@@ -222,6 +225,7 @@ export default function OrderForm({
   session,
   hourlyRate,
   unknownClientId,
+  mechanics,
   initialData,
   orderId,
 }: Props) {
@@ -255,6 +259,11 @@ export default function OrderForm({
   );
   const clientSearch = useSearch<ClientSuggestion>(
     (q) => `/api/order-form?type=clients&q=${encodeURIComponent(q)}`,
+  );
+
+  // ── Mechanic state
+  const [selectedMechanicId, setSelectedMechanicId] = useState(
+    initialData?.mechanicId ?? session.userId,
   );
 
   // ── Deadline state
@@ -398,6 +407,7 @@ export default function OrderForm({
       vehicleId,
       clientId,
       deadline,
+      mechanicId: selectedMechanicId,
       parts: parts.map((p) => ({
         catalogPartId: p.catalogPartId!,
         qty: parseFloat(p.qty),
@@ -488,13 +498,35 @@ export default function OrderForm({
     <>
       <div className="mx-auto max-w-3xl px-6 py-8">
         {/* Page header */}
-        <div className="mb-7">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            {mode === 'create' ? 'New Order' : 'Edit Order'}
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {mode === 'create' ? 'Create a repair order' : 'Update repair order'}
-          </p>
+        <div className="mb-7 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              {mode === 'create' ? 'New Order' : 'Edit Order'}
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+              {mode === 'create' ? 'Create a repair order' : 'Update repair order'}
+            </p>
+          </div>
+          <div className="flex flex-col gap-1 min-w-[200px]">
+            <label className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+              Mechanic
+            </label>
+            {isAdmin ? (
+              <select
+                value={selectedMechanicId}
+                onChange={(e) => setSelectedMechanicId(e.target.value)}
+                className={inputCls}
+              >
+                {mechanics.map((m) => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+            ) : (
+              <div className="px-3.5 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                {mechanics.find((m) => m.id === selectedMechanicId)?.name ?? '—'}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">

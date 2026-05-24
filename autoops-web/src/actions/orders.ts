@@ -24,6 +24,7 @@ export type OrderInput = {
   vehicleId: string;
   clientId: string;
   deadline: string;
+  mechanicId?: string;
   parts: PartInput[];
   services: ServiceInput[];
 };
@@ -38,7 +39,7 @@ export async function createOrderAction(
     const [order] = await db
       .insert(orders)
       .values({
-        mechanic_id: session.userId,
+        mechanic_id: (session.role === 'admin' && input.mechanicId) ? input.mechanicId : session.userId,
         vehicle_id: input.vehicleId,
         client_id: input.clientId,
         status: 'booked',
@@ -92,6 +93,7 @@ export async function updateOrderAction(
           vehicle_id: input.vehicleId,
           client_id: input.clientId,
           deadline: new Date(input.deadline),
+          ...(input.mechanicId ? { mechanic_id: input.mechanicId } : {}),
           updated_at: new Date(),
         })
         .where(eq(orders.id, orderId));
@@ -282,6 +284,46 @@ export async function createClientAction(data: {
   } catch (e) {
     console.error(e);
     return { error: 'Failed to create client' };
+  }
+}
+
+export async function assignVehicleToClientAction(
+  vehicleId: string,
+  clientId: string,
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+
+  try {
+    await db
+      .update(vehicles)
+      .set({ client_id: clientId, updated_at: new Date() })
+      .where(eq(vehicles.id, vehicleId));
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to assign vehicle' };
+  }
+}
+
+export async function updateOrderMechanicAction(
+  orderId: string,
+  mechanicId: string,
+): Promise<{ success: true } | { error: string }> {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (session.role !== 'admin') return { error: 'Unauthorized' };
+
+  try {
+    await db
+      .update(orders)
+      .set({ mechanic_id: mechanicId, updated_at: new Date() })
+      .where(eq(orders.id, orderId));
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to update mechanic' };
   }
 }
 
