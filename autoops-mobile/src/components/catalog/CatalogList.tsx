@@ -65,7 +65,11 @@ export function CatalogList<T extends { id: string }>({
         const res = await get<Paginated<T>>(`${endpoint}?${params}`);
         setTotal(res.pagination.total);
         setPage(opts.page);
-        setItems((prev) => (opts.reset ? res.data : [...prev, ...res.data]));
+        setItems((prev) => {
+          if (opts.reset) return res.data;
+          const seen = new Set(prev.map((i) => i.id));
+          return [...prev, ...res.data.filter((i) => !seen.has(i.id))];
+        });
       } catch (e) {
         setError(e instanceof ApiError ? e.message : 'Failed to load');
       } finally {
