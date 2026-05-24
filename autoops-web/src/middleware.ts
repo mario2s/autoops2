@@ -6,6 +6,11 @@ const PUBLIC_ROUTES = new Set(['/', '/login', '/register']);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // API v1 routes handle their own Bearer-token auth in route handlers.
+  if (pathname.startsWith('/api/v1/')) {
+    return NextResponse.next();
+  }
+
   if (PUBLIC_ROUTES.has(pathname)) {
     return NextResponse.next();
   }
