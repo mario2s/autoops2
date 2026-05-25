@@ -507,9 +507,9 @@ export default function OrderForm({
 
   return (
     <>
-      <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
         {/* Page header */}
-        <div className="mb-7 flex items-start justify-between gap-4">
+        <div className="mb-6 sm:mb-7 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
               {mode === 'create' ? 'New Order' : 'Edit Order'}
@@ -518,7 +518,7 @@ export default function OrderForm({
               {mode === 'create' ? 'Create a repair order' : 'Update repair order'}
             </p>
           </div>
-          <div className="flex flex-col gap-1 min-w-[200px]">
+          <div className="flex flex-col gap-1 sm:min-w-[200px]">
             <label className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Mechanic
             </label>
@@ -673,16 +673,16 @@ export default function OrderForm({
             </div>
 
             {parts.length > 0 && (
-              <div className="px-5 pt-4 pb-2">
-                {/* Column headers */}
-                <div className="grid grid-cols-[1fr_64px_96px_72px_28px] gap-2 mb-2">
+              <div className="px-3 sm:px-5 pt-4 pb-2">
+                {/* Column headers: desktop only */}
+                <div className="hidden sm:grid grid-cols-[1fr_64px_96px_72px_28px] gap-2 mb-2">
                   {['Part name', 'Qty', 'Unit price', 'Total', ''].map((h) => (
                     <span key={h} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
                       {h}
                     </span>
                   ))}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3 sm:space-y-2">
                   {parts.map((row) => (
                     <PartRowInput
                       key={row.key}
@@ -718,15 +718,16 @@ export default function OrderForm({
             </div>
 
             {services.length > 0 && (
-              <div className="px-5 pt-4 pb-2">
-                <div className="grid grid-cols-[1fr_88px_64px_80px_80px_28px] gap-2 mb-2">
+              <div className="px-3 sm:px-5 pt-4 pb-2">
+                {/* Column headers: desktop only */}
+                <div className="hidden sm:grid grid-cols-[1fr_88px_64px_80px_80px_28px] gap-2 mb-2">
                   {['Description', 'Type', 'Hours', 'Rate €/h', 'Total', ''].map((h) => (
                     <span key={h} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
                       {h}
                     </span>
                   ))}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3 sm:space-y-2">
                   {services.map((row) => (
                     <ServiceRowInput
                       key={row.key}
@@ -914,77 +915,93 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
   const total = partTotal(row);
 
   return (
-    <div className="grid grid-cols-[1fr_64px_96px_72px_28px] gap-2 items-start">
-      {/* Part name with dropdown */}
-      <div ref={containerRef} className="relative">
-        <input
-          type="text"
-          value={row.name}
-          onChange={(e) => handleNameChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => (suggestions.length > 0 || showAddOption) && setOpen(true)}
-          placeholder="Search or add part…"
-          autoComplete="off"
-          className={smallInputCls}
-        />
-        {open && (suggestions.length > 0 || showAddOption) && (
-          <ul className="absolute z-50 top-full mt-1 left-0 right-0 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg overflow-hidden">
-            {suggestions.map((s, i) => (
-              <li
-                key={s.id}
-                onPointerDown={(e) => { e.preventDefault(); selectPart(s); }}
-                className={`px-3 py-2 text-sm cursor-pointer truncate ${
-                  i === activeIdx
-                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50'
-                    : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                }`}
-              >
-                {s.name}
-              </li>
-            ))}
-            {showAddOption && (
-              <li
-                onPointerDown={(e) => { e.preventDefault(); addToCatalog(); }}
-                className={`px-3 py-2 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
-                  activeIdx === suggestions.length ? 'bg-zinc-100 dark:bg-zinc-800' : ''
-                }`}
-              >
-                {adding ? 'Adding…' : `Add "${row.name}" to catalog`}
-              </li>
-            )}
-          </ul>
-        )}
+    // Mobile: block with stacked rows. Desktop (sm+): 5-column grid.
+    <div className="sm:grid sm:grid-cols-[1fr_64px_96px_72px_28px] sm:gap-2 sm:items-start">
+      {/* Row 1 on mobile: part name (left) + remove button (right) */}
+      <div className="flex items-start gap-1.5 mb-1.5 sm:mb-0 sm:contents">
+        <div ref={containerRef} className="relative flex-1 sm:flex-none">
+          <input
+            type="text"
+            value={row.name}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => (suggestions.length > 0 || showAddOption) && setOpen(true)}
+            placeholder="Search or add part…"
+            autoComplete="off"
+            className={smallInputCls}
+          />
+          {open && (suggestions.length > 0 || showAddOption) && (
+            <ul className="absolute z-50 top-full mt-1 left-0 right-0 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg overflow-hidden">
+              {suggestions.map((s, i) => (
+                <li
+                  key={s.id}
+                  onPointerDown={(e) => { e.preventDefault(); selectPart(s); }}
+                  className={`px-3 py-2 text-sm cursor-pointer truncate ${
+                    i === activeIdx
+                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  {s.name}
+                </li>
+              ))}
+              {showAddOption && (
+                <li
+                  onPointerDown={(e) => { e.preventDefault(); addToCatalog(); }}
+                  className={`px-3 py-2 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                    activeIdx === suggestions.length ? 'bg-zinc-100 dark:bg-zinc-800' : ''
+                  }`}
+                >
+                  {adding ? 'Adding…' : `Add "${row.name}" to catalog`}
+                </li>
+              )}
+            </ul>
+          )}
+        </div>
+        {/* Remove: top-right on mobile, hidden on desktop (rendered below) */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="sm:hidden mt-0.5 w-6 h-6 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+          aria-label="Remove part"
+        >
+          ×
+        </button>
       </div>
 
-      <input
-        type="number"
-        value={row.qty}
-        onChange={(e) => onChange({ qty: e.target.value })}
-        min="0.01"
-        step="0.01"
-        placeholder="1"
-        className={smallInputCls}
-      />
-      <input
-        type="number"
-        value={row.unitPrice}
-        onChange={(e) => onChange({ unitPrice: e.target.value })}
-        min="0"
-        step="0.01"
-        placeholder="0.00"
-        className={smallInputCls}
-      />
-      <div className="py-1.5 text-right text-sm text-zinc-500 dark:text-zinc-400 font-medium tabular-nums">
-        {total > 0 ? fmt(total) : '—'}
+      {/* Row 2 on mobile: qty + unit price + total | on desktop: sm:contents → grid cells 2–5 */}
+      <div className="flex items-center gap-2 sm:contents">
+        <input
+          type="number"
+          value={row.qty}
+          onChange={(e) => onChange({ qty: e.target.value })}
+          min="0.01"
+          step="0.01"
+          placeholder="1"
+          className={`${smallInputCls} w-16 sm:w-auto`}
+        />
+        <input
+          type="number"
+          value={row.unitPrice}
+          onChange={(e) => onChange({ unitPrice: e.target.value })}
+          min="0"
+          step="0.01"
+          placeholder="0.00"
+          className={`${smallInputCls} flex-1 sm:flex-none`}
+        />
+        <div className="py-1.5 text-right text-sm text-zinc-500 dark:text-zinc-400 font-medium tabular-nums w-[68px] shrink-0 sm:w-auto">
+          {total > 0 ? fmt(total) : '—'}
+        </div>
+        {/* Remove: desktop only (shown above on mobile) */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="hidden sm:flex mt-0.5 w-6 h-6 items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+          aria-label="Remove part"
+        >
+          ×
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="mt-0.5 w-6 h-6 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-        aria-label="Remove part"
-      >
-        ×
-      </button>
     </div>
   );
 }
@@ -1003,84 +1020,101 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
   const total = serviceTotal(row);
 
   return (
-    <div className="grid grid-cols-[1fr_88px_64px_80px_80px_28px] gap-2 items-center">
-      <input
-        type="text"
-        value={row.description}
-        onChange={(e) => onChange({ description: e.target.value })}
-        placeholder="Description"
-        className={smallInputCls}
-      />
-
-      {/* Type toggle */}
-      <div className="flex rounded-md border border-zinc-200 dark:border-zinc-700 overflow-hidden text-xs">
+    // Mobile: block with stacked rows. Desktop (sm+): 6-column grid.
+    <div className="sm:grid sm:grid-cols-[1fr_88px_64px_80px_80px_28px] sm:gap-2 sm:items-center">
+      {/* Row 1 on mobile: description (left) + remove (right) */}
+      <div className="flex items-center gap-1.5 mb-1.5 sm:mb-0 sm:contents">
+        <input
+          type="text"
+          value={row.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+          placeholder="Description"
+          className={`${smallInputCls} flex-1 sm:flex-none`}
+        />
+        {/* Remove: top-right on mobile, hidden on desktop */}
         <button
           type="button"
-          onClick={() => onChange({ costType: 'hourly' })}
-          className={`flex-1 py-1.5 text-center transition-colors ${
-            hourly
-              ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
-              : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-          }`}
+          onClick={onRemove}
+          className="sm:hidden w-6 h-6 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+          aria-label="Remove service"
         >
-          Hourly
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange({ costType: 'fixed' })}
-          className={`flex-1 py-1.5 text-center transition-colors ${
-            !hourly
-              ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
-              : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-          }`}
-        >
-          Fixed
+          ×
         </button>
       </div>
 
-      <input
-        type="number"
-        value={row.hours}
-        onChange={(e) => onChange({ hours: e.target.value })}
-        min="0"
-        step="0.5"
-        placeholder="0"
-        disabled={!hourly}
-        className={smallInputCls}
-      />
+      {/* Row 2 on mobile: type toggle + hours | on desktop: sm:contents → grid cells 2–3 */}
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-0 sm:contents">
+        {/* Type toggle */}
+        <div className="flex rounded-md border border-zinc-200 dark:border-zinc-700 overflow-hidden text-xs flex-1 sm:flex-none">
+          <button
+            type="button"
+            onClick={() => onChange({ costType: 'hourly' })}
+            className={`flex-1 py-1.5 text-center transition-colors ${
+              hourly
+                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
+                : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+            }`}
+          >
+            Hourly
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange({ costType: 'fixed' })}
+            className={`flex-1 py-1.5 text-center transition-colors ${
+              !hourly
+                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
+                : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+            }`}
+          >
+            Fixed
+          </button>
+        </div>
+        <input
+          type="number"
+          value={row.hours}
+          onChange={(e) => onChange({ hours: e.target.value })}
+          min="0"
+          step="0.5"
+          placeholder="0"
+          disabled={!hourly}
+          className={`${smallInputCls} w-20 sm:w-auto`}
+        />
+      </div>
 
-      <input
-        type="number"
-        value={row.rate}
-        onChange={(e) => !rateReadOnly && onChange({ rate: e.target.value })}
-        min="0"
-        step="0.01"
-        placeholder="0.00"
-        disabled={!hourly}
-        readOnly={rateReadOnly}
-        className={`${smallInputCls} ${rateReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-      />
-
-      {/* Total — editable only for fixed */}
-      <input
-        type="number"
-        value={hourly ? (total > 0 ? total.toFixed(2) : '') : row.fixedAmount}
-        onChange={(e) => !hourly && onChange({ fixedAmount: e.target.value })}
-        readOnly={hourly}
-        min="0"
-        step="0.01"
-        placeholder="0.00"
-        className={`${smallInputCls} ${hourly ? 'opacity-50 cursor-not-allowed' : 'border-zinc-300 dark:border-zinc-600'}`}
-      />
-
-      <button
-        type="button"
-        onClick={onRemove}
-        className="w-6 h-6 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-        aria-label="Remove service"
-      >
-        ×
-      </button>
+      {/* Row 3 on mobile: rate + total/amount + desktop remove | on desktop: sm:contents → grid cells 4–6 */}
+      <div className="flex items-center gap-2 sm:contents">
+        <input
+          type="number"
+          value={row.rate}
+          onChange={(e) => !rateReadOnly && onChange({ rate: e.target.value })}
+          min="0"
+          step="0.01"
+          placeholder="0.00"
+          disabled={!hourly}
+          readOnly={rateReadOnly}
+          className={`${smallInputCls} flex-1 sm:flex-none ${rateReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+        />
+        {/* Total — editable only for fixed */}
+        <input
+          type="number"
+          value={hourly ? (total > 0 ? total.toFixed(2) : '') : row.fixedAmount}
+          onChange={(e) => !hourly && onChange({ fixedAmount: e.target.value })}
+          readOnly={hourly}
+          min="0"
+          step="0.01"
+          placeholder="0.00"
+          className={`${smallInputCls} flex-1 sm:flex-none ${hourly ? 'opacity-50 cursor-not-allowed' : 'border-zinc-300 dark:border-zinc-600'}`}
+        />
+        {/* Remove: desktop only (shown above on mobile) */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="hidden sm:flex w-6 h-6 items-center justify-center rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+          aria-label="Remove service"
+        >
+          ×
+        </button>
+      </div>
     </div>
   );
 }

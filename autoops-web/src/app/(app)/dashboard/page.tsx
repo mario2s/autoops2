@@ -75,9 +75,9 @@ export default async function DashboardPage({
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8">
       {/* Page header */}
-      <div className="flex items-start justify-between mb-7">
+      <div className="flex items-start justify-between mb-6 sm:mb-7">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
             Orders
@@ -135,21 +135,27 @@ export default async function DashboardPage({
             return (
               <div
                 key={order.id}
-                className={`relative grid grid-cols-1 gap-2 sm:gap-3 px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
+                className={`relative px-4 sm:px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors sm:grid sm:gap-3 ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
               >
                 <Link href={`/orders/${order.id}/edit`} className="absolute inset-0" aria-label={`Edit order ${order.vehicleDisplay}`} />
-                {/* Vehicle / Client */}
-                <div>
-                  <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 leading-tight">
-                    {order.vehicleDisplay}
+
+                {/* Row 1: Vehicle + Client (left) | Total (right, mobile only) */}
+                <div className="flex items-start justify-between sm:block mb-1 sm:mb-0">
+                  <div>
+                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 leading-tight">
+                      {order.vehicleDisplay}
+                    </div>
+                    <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                      {order.clientName}
+                    </div>
                   </div>
-                  <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                    {order.clientName}
+                  <div className="sm:hidden text-sm font-medium text-zinc-700 dark:text-zinc-300 shrink-0 ml-3">
+                    €{order.total.toFixed(2)}
                   </div>
                 </div>
 
                 {/* Mechanic */}
-                <div className="relative z-10 sm:self-center">
+                <div className="relative z-10 mt-2 sm:mt-0 sm:self-center">
                   <span className="sm:hidden text-xs text-zinc-400 mr-1">Mechanic:</span>
                   {isAdmin ? (
                     <MechanicBadge
@@ -163,52 +169,62 @@ export default async function DashboardPage({
                   )}
                 </div>
 
-                {/* Status badge */}
-                <div className="relative z-10 sm:self-center">
-                  <StatusBadge orderId={order.id} status={order.status} />
-                </div>
+                {/* Row 3 on mobile: Status + Deadline + Delete */}
+                <div className="flex items-center gap-3 mt-1.5 sm:mt-0 sm:contents">
+                  {/* Status badge */}
+                  <div className="relative z-10 sm:self-center">
+                    <StatusBadge orderId={order.id} status={order.status} />
+                  </div>
 
-                {/* Deadline */}
-                <div className="sm:self-center">
-                  {overdue ? (
-                    <span className="flex items-center gap-1 text-xs font-medium text-red-500 dark:text-red-400">
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                        aria-hidden="true"
-                        className="shrink-0"
-                      >
-                        <circle cx="6" cy="6" r="5.5" stroke="currentColor" />
-                        <line
-                          x1="6"
-                          y1="3.5"
-                          x2="6"
-                          y2="6.5"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          strokeLinecap="round"
-                        />
-                        <circle cx="6" cy="8.5" r="0.6" fill="currentColor" />
-                      </svg>
-                      {formatDeadline(order.deadline)}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDeadline(order.deadline)}
-                    </span>
+                  {/* Deadline */}
+                  <div className="sm:self-center">
+                    {overdue ? (
+                      <span className="flex items-center gap-1 text-xs font-medium text-red-500 dark:text-red-400">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          aria-hidden="true"
+                          className="shrink-0"
+                        >
+                          <circle cx="6" cy="6" r="5.5" stroke="currentColor" />
+                          <line
+                            x1="6"
+                            y1="3.5"
+                            x2="6"
+                            y2="6.5"
+                            stroke="currentColor"
+                            strokeWidth="1.2"
+                            strokeLinecap="round"
+                          />
+                          <circle cx="6" cy="8.5" r="0.6" fill="currentColor" />
+                        </svg>
+                        {formatDeadline(order.deadline)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {formatDeadline(order.deadline)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Delete: inline with status on mobile, own column on desktop */}
+                  {isAdmin && (
+                    <div className="relative z-10 sm:hidden ml-auto">
+                      <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
+                    </div>
                   )}
                 </div>
 
-                {/* Total */}
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
+                {/* Total: desktop only (shown on mobile above) */}
+                <div className="hidden sm:block text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
                   €{order.total.toFixed(2)}
                 </div>
 
-                {/* Delete */}
+                {/* Delete: desktop only */}
                 {isAdmin && (
-                  <div className="relative z-10 sm:self-center">
+                  <div className="relative z-10 hidden sm:block sm:self-center">
                     <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
                   </div>
                 )}
