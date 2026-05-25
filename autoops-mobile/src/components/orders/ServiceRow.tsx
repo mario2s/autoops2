@@ -13,15 +13,16 @@ export type ServiceRowValue = {
 
 type Props = {
   value: ServiceRowValue;
+  hourlyRate: number;
   onChange: (v: ServiceRowValue) => void;
   onRemove: () => void;
 };
 
-export function ServiceRow({ value, onChange, onRemove }: Props) {
+export function ServiceRow({ value, hourlyRate, onChange, onRemove }: Props) {
   const theme = useTheme();
   const isHourly = value.costType === 'hourly';
   const hours = parseFloat(value.hours) || 0;
-  const rate = parseFloat(value.rate) || 0;
+  const rate = hourlyRate;
   const fixed = parseFloat(value.fixedAmount) || 0;
   const total = isHourly ? hours * rate : fixed;
 
@@ -69,6 +70,7 @@ export function ServiceRow({ value, onChange, onRemove }: Props) {
           onChangeText={(t) => onChange({ ...value, hours: t })}
           keyboardType="numeric"
           placeholder="0"
+          selectTextOnFocus
           placeholderTextColor={theme.textSecondary}
           style={[
             styles.input,
@@ -77,20 +79,11 @@ export function ServiceRow({ value, onChange, onRemove }: Props) {
         />
       </View>
 
-      <View style={styles.numCol}>
+      <View style={[styles.numCol, { opacity: isHourly ? 1 : 0.4 }]}>
         <Text style={[styles.cellLabel, { color: theme.textSecondary }]}>Rate</Text>
-        <TextInput
-          editable={isHourly}
-          value={isHourly ? value.rate : ''}
-          onChangeText={(t) => onChange({ ...value, rate: t })}
-          keyboardType="numeric"
-          placeholder="0.00"
-          placeholderTextColor={theme.textSecondary}
-          style={[
-            styles.input,
-            { color: theme.text, backgroundColor: theme.background, opacity: isHourly ? 1 : 0.4 },
-          ]}
-        />
+        <View style={[styles.input, { backgroundColor: theme.backgroundSelected, justifyContent: 'center' }]}>
+          <Text style={[styles.rateText, { color: theme.textSecondary }]}>{formatCurrency(hourlyRate)}</Text>
+        </View>
       </View>
 
       <View style={styles.numCol}>
@@ -103,6 +96,7 @@ export function ServiceRow({ value, onChange, onRemove }: Props) {
             onChangeText={(t) => onChange({ ...value, fixedAmount: t })}
             keyboardType="numeric"
             placeholder="0.00"
+            selectTextOnFocus
             placeholderTextColor={theme.textSecondary}
             style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
           />
@@ -138,6 +132,9 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 8,
     paddingHorizontal: 10,
+    fontSize: 14,
+  },
+  rateText: {
     fontSize: 14,
   },
   totalText: {

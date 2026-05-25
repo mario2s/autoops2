@@ -108,10 +108,17 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
       : [],
   );
 
+  const [hourlyRate, setHourlyRate] = useState(30);
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    get<{ hourlyRate: number }>('/api/v1/settings')
+      .then((res) => setHourlyRate(res.hourlyRate))
+      .catch(() => {});
+  }, []);
 
   const partsTotal = parts.reduce(
     (sum, p) => sum + (parseFloat(p.qty) || 0) * (parseFloat(p.unitPrice) || 0),
@@ -119,7 +126,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
   );
   const servicesTotal = services.reduce((sum, s) => {
     if (s.costType === 'hourly') {
-      return sum + (parseFloat(s.hours) || 0) * (parseFloat(s.rate) || 0);
+      return sum + (parseFloat(s.hours) || 0) * hourlyRate;
     }
     return sum + (parseFloat(s.fixedAmount) || 0);
   }, 0);
@@ -154,7 +161,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
       if (!s.description.trim()) return 'Service description is required';
       if (s.costType === 'hourly') {
         if (!(parseFloat(s.hours) > 0)) return 'Service hours must be greater than 0';
-        if (!(parseFloat(s.rate) >= 0)) return 'Service rate must be 0 or greater';
+        if (!(hourlyRate >= 0)) return 'Hourly rate is not configured';
       } else {
         if (!(parseFloat(s.fixedAmount) >= 0)) return 'Fixed amount must be 0 or greater';
       }
@@ -178,7 +185,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
               description: s.description.trim(),
               costType: 'hourly' as const,
               hours: parseFloat(s.hours),
-              rate: parseFloat(s.rate),
+              rate: hourlyRate,
               fixedAmount: null,
             }
           : {
@@ -253,7 +260,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
                 description: s.description.trim(),
                 costType: 'hourly' as const,
                 hours: parseFloat(s.hours),
-                rate: parseFloat(s.rate),
+                rate: hourlyRate,
                 fixedAmount: null,
               }
             : {
@@ -361,6 +368,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
             <ServiceRow
               key={i}
               value={s}
+              hourlyRate={hourlyRate}
               onChange={(v) => setServices((prev) => prev.map((it, idx) => (idx === i ? v : it)))}
               onRemove={() => setServices((prev) => prev.filter((_, idx) => idx !== i))}
             />

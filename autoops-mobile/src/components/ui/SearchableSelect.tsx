@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   View,
+  type ViewStyle,
 } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
@@ -22,6 +23,7 @@ type Props = {
   disabled?: boolean;
   debounceMs?: number;
   minChars?: number;
+  fieldStyle?: ViewStyle;
 };
 
 export function SearchableSelect({
@@ -34,6 +36,7 @@ export function SearchableSelect({
   disabled,
   debounceMs = 300,
   minChars = 2,
+  fieldStyle,
 }: Props) {
   const theme = useTheme();
   const [items, setItems] = useState<Item[]>([]);
@@ -73,7 +76,7 @@ export function SearchableSelect({
   return (
     <View>
       {label ? <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text> : null}
-      <View style={[styles.field, { backgroundColor: theme.backgroundElement }]}>
+      <View style={[styles.field, { backgroundColor: theme.backgroundElement }, fieldStyle]}>
         <TextInput
           editable={!disabled}
           value={value}

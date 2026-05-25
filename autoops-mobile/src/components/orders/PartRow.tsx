@@ -41,6 +41,7 @@ export function PartRow({ value, onChange, onRemove }: Props) {
           }
           fetcher={searchParts}
           placeholder="Part name"
+          fieldStyle={{ backgroundColor: theme.background }}
         />
       </View>
       <View style={styles.numCol}>
@@ -50,6 +51,7 @@ export function PartRow({ value, onChange, onRemove }: Props) {
           onChangeText={(t) => onChange({ ...value, qty: t })}
           keyboardType="numeric"
           placeholder="0"
+          selectTextOnFocus
           placeholderTextColor={theme.textSecondary}
           style={[styles.numInput, { color: theme.text, backgroundColor: theme.background }]}
         />
@@ -61,6 +63,7 @@ export function PartRow({ value, onChange, onRemove }: Props) {
           onChangeText={(t) => onChange({ ...value, unitPrice: t })}
           keyboardType="numeric"
           placeholder="0.00"
+          selectTextOnFocus
           placeholderTextColor={theme.textSecondary}
           style={[styles.numInput, { color: theme.text, backgroundColor: theme.background }]}
         />
