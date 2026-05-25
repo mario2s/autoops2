@@ -38,8 +38,7 @@ export default function HourlyRateForm({ initialRate }: { initialRate: string })
           <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">Universal Hourly Rate</div>
           <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 leading-relaxed">
             Default rate pre-filled when adding hourly services to an order.
-            <br />
-            Mechanics can override it per service row.
+            Only admins can change this setting.
           </div>
           {error && <div className="text-xs text-red-500 dark:text-red-400 mt-1.5">{error}</div>}
         </div>
