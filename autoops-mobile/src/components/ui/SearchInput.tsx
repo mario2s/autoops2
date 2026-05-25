@@ -69,12 +69,12 @@ export function SearchInput({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 8,
-    paddingHorizontal: 12,
     borderWidth: 0.5,
   },
   input: {
     height: 38,
     fontSize: 16,
     borderRadius: 8,
+    paddingHorizontal: 12,
   },
 });

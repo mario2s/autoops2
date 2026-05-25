@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 0.5,
     paddingHorizontal: 12,
-    fontSize: 13,
+    fontSize: 16,
   },
   button: {
     height: 40,

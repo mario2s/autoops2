@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   },
   field: {
     borderRadius: 10,
-    paddingHorizontal: 14,
   },
   input: {
     height: 44,
     fontSize: 16,
     borderRadius: 10,
+    paddingHorizontal: 14,
   },
   dropdown: {
     marginTop: 4,
