@@ -25,6 +25,9 @@
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "4.3.0"
+  },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "@tailwindcss/postcss": "^4",
