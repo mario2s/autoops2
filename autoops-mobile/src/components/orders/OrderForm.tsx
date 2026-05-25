@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -111,6 +111,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
   );
 
   const [hourlyRate, setHourlyRate] = useState(30);
+  const handleSubmitRef = useRef<() => void>(() => {});
   const [showPartModal, setShowPartModal] = useState(false);
   const [pendingPartIndex, setPendingPartIndex] = useState<number | null>(null);
   const [showVehicleModal, setShowVehicleModal] = useState(false);
@@ -311,6 +312,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     if (mode === 'create') handleSubmitCreate();
     else handleSubmitEdit();
   }
+  handleSubmitRef.current = handleSubmit;
 
   return (
     <ScrollView
@@ -442,7 +444,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
             );
           }
           setPendingPartIndex(null);
-          setTimeout(() => handleSubmit(), Platform.OS === 'web' ? 0 : 100);
+          setTimeout(() => handleSubmitRef.current(), Platform.OS === 'web' ? 0 : 100);
         }}
       />
       <VehicleModal

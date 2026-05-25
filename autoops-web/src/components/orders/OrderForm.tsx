@@ -306,6 +306,7 @@ export default function OrderForm({
   );
 
   // ── Submit state
+  const handleSubmitRef = useRef<() => void>(() => {});
   const [modal, setModal] = useState<Modal>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -498,6 +499,8 @@ export default function OrderForm({
       await submitOrder(vehicleId, clientId);
     }
   }
+
+  handleSubmitRef.current = handleSubmit;
 
   // ─── Render ──────────────────────────────────────────────────────────────────
 
@@ -807,7 +810,7 @@ export default function OrderForm({
           onSuccess={(id, name) => {
             updatePart(modal.partKey, { catalogPartId: id, name });
             setModal(null);
-            setTimeout(() => handleSubmit(), 0);
+            setTimeout(() => handleSubmitRef.current(), 0);
           }}
           onClose={() => setModal(null)}
         />
