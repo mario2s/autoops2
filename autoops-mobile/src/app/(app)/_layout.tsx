@@ -41,7 +41,7 @@ export default function AppLayout() {
         options={{
           title: 'Profile',
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="person-circle-outline" color={color} size={size} />,
         }}
       />
     </Tabs>
