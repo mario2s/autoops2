@@ -4,9 +4,13 @@ import { jwtVerify } from 'jose';
 const PUBLIC_ROUTES = new Set(['/', '/login', '/register']);
 
 function applyCors(res: NextResponse, origin: string | null) {
-  // In dev, allow any localhost origin; in prod, set an allowlist via env.
+  const extraOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
+    .split(',').map(s => s.trim()).filter(Boolean);
   const allowed =
-    origin && (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
+    origin && (
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+      extraOrigins.includes(origin)
+    )
       ? origin
       : null;
   if (allowed) {
