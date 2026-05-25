@@ -19,7 +19,19 @@
       "Bash(find /Users/mario -name \"autoops_mobile_screens.html\" 2>/dev/null)",
       "Read(//Users/mario/**)",
       "Bash(kill 99146 80009)",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); pkgs=d.get\\('packages',{}\\); print\\('react:', pkgs.get\\('node_modules/react',{}\\).get\\('version','?'\\)\\); print\\('react-dom:', pkgs.get\\('node_modules/react-dom',{}\\).get\\('version','?'\\)\\)\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); pkgs=d.get\\('packages',{}\\); print\\('react:', pkgs.get\\('node_modules/react',{}\\).get\\('version','?'\\)\\); print\\('react-dom:', pkgs.get\\('node_modules/react-dom',{}\\).get\\('version','?'\\)\\)\")",
+      "Bash(sed -i '' 's/keyboardType=\"numeric\"/keyboardType=\"decimal-pad\"/g' \\\\ *)",
+      "Bash(xargs cat -n)",
+      "Bash(ls /tmp/*.png /tmp/*.jpg 2>/dev/null | head -5; ls ~/Desktop/*.png ~/Desktop/*.jpg 2>/dev/null | head -10)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npx playwright *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['data'][0]['id'], d['data'][0].get\\('plate',''\\)\\)\")",
+      "Bash(npx playwright@1.60.0 install chromium --with-deps)",
+      "Read(//tmp/**)"
+    ],
+    "additionalDirectories": [
+      "/Users/mario/Documents/autoops2/autoops-mobile/src/app/(app)/catalog/vehicles/[id]"
     ]
   }
 }

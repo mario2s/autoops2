@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -111,7 +110,6 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
   );
 
   const [hourlyRate, setHourlyRate] = useState(30);
-  const handleSubmitRef = useRef<() => void>(() => {});
   const [showPartModal, setShowPartModal] = useState(false);
   const [pendingPartIndex, setPendingPartIndex] = useState<number | null>(null);
   const [showVehicleModal, setShowVehicleModal] = useState(false);
@@ -153,11 +151,11 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     }
   }
 
-  function validate(): string | null {
+  function validate(currentParts: PartRowValue[] = parts): string | null {
     if (!deadline) return 'Deadline is required';
-    if (parts.length === 0 && services.length === 0)
+    if (currentParts.length === 0 && services.length === 0)
       return 'Add at least one part or service';
-    for (const p of parts) {
+    for (const p of currentParts) {
       if (!p.catalogPartId) return `Select a part for "${p.partName || 'each row'}"`;
       if (!(parseFloat(p.qty) > 0)) return 'Part quantity must be greater than 0';
       if (!(parseFloat(p.unitPrice) >= 0)) return 'Part unit price must be 0 or greater';
@@ -174,12 +172,16 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     return null;
   }
 
-  function buildBody(finalVehicleId: string, finalClientId: string): CreateOrderInput {
+  function buildBody(
+    finalVehicleId: string,
+    finalClientId: string,
+    currentParts: PartRowValue[] = parts,
+  ): CreateOrderInput {
     return {
       vehicleId: finalVehicleId,
       clientId: finalClientId,
       deadline: deadline!.toISOString(),
-      parts: parts.map((p) => ({
+      parts: currentParts.map((p) => ({
         catalogPartId: p.catalogPartId!,
         qty: parseFloat(p.qty),
         unitPrice: parseFloat(p.unitPrice),
@@ -204,11 +206,15 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     };
   }
 
-  async function doCreate(finalVehicleId: string, finalClientId: string) {
+  async function doCreate(
+    finalVehicleId: string,
+    finalClientId: string,
+    currentParts: PartRowValue[] = parts,
+  ) {
     setSubmitting(true);
     setError(null);
     try {
-      const body = buildBody(finalVehicleId, finalClientId);
+      const body = buildBody(finalVehicleId, finalClientId, currentParts);
       const res = await post<{ data: OrderDetail }>('/api/v1/orders', body);
       toast.show('Order created', 'success');
       router.replace(`/orders/${res.data.id}`);
@@ -219,18 +225,18 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     }
   }
 
-  function findFirstUnresolvedPart(): number {
-    return parts.findIndex((p) => p.partName.trim() !== '' && !p.catalogPartId);
+  function findFirstUnresolvedPart(currentParts: PartRowValue[] = parts): number {
+    return currentParts.findIndex((p) => p.partName.trim() !== '' && !p.catalogPartId);
   }
 
-  async function handleSubmitCreate() {
-    const unresolvedIdx = findFirstUnresolvedPart();
+  async function handleSubmitCreate(currentParts: PartRowValue[] = parts) {
+    const unresolvedIdx = findFirstUnresolvedPart(currentParts);
     if (unresolvedIdx !== -1) {
       setPendingPartIndex(unresolvedIdx);
       setShowPartModal(true);
       return;
     }
-    const err = validate();
+    const err = validate(currentParts);
     if (err) {
       setError(err);
       return;
@@ -250,18 +256,18 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
       return;
     }
     const finalClientId = clientId ?? UNKNOWN_CLIENT_ID;
-    await doCreate(vehicleId, finalClientId);
+    await doCreate(vehicleId, finalClientId, currentParts);
   }
 
-  async function handleSubmitEdit() {
+  async function handleSubmitEdit(currentParts: PartRowValue[] = parts) {
     if (!orderId) return;
-    const unresolvedIdx = findFirstUnresolvedPart();
+    const unresolvedIdx = findFirstUnresolvedPart(currentParts);
     if (unresolvedIdx !== -1) {
       setPendingPartIndex(unresolvedIdx);
       setShowPartModal(true);
       return;
     }
-    const err = validate();
+    const err = validate(currentParts);
     if (err) {
       setError(err);
       return;
@@ -270,7 +276,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     setError(null);
     try {
       const body: UpdateOrderInput = {
-        parts: parts.map((p) => ({
+        parts: currentParts.map((p) => ({
           catalogPartId: p.catalogPartId!,
           qty: parseFloat(p.qty),
           unitPrice: parseFloat(p.unitPrice),
@@ -308,11 +314,10 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     }
   }
 
-  function handleSubmit() {
-    if (mode === 'create') handleSubmitCreate();
-    else handleSubmitEdit();
+  function handleSubmit(currentParts: PartRowValue[] = parts) {
+    if (mode === 'create') handleSubmitCreate(currentParts);
+    else handleSubmitEdit(currentParts);
   }
-  handleSubmitRef.current = handleSubmit;
 
   return (
     <ScrollView
@@ -418,7 +423,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
       {error ? <Text style={[styles.error, { color: theme.danger }]}>{error}</Text> : null}
 
       <Pressable
-        onPress={handleSubmit}
+        onPress={() => handleSubmit()}
         disabled={submitting}
         style={[styles.submit, { backgroundColor: theme.accent, opacity: submitting ? 0.6 : 1 }]}>
         {submitting ? (
@@ -435,16 +440,15 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
         initialName={pendingPartIndex !== null ? (parts[pendingPartIndex]?.partName ?? '') : ''}
         onClose={() => { setShowPartModal(false); setPendingPartIndex(null); }}
         onCreated={(part: Part) => {
+          const idx = pendingPartIndex;
           setShowPartModal(false);
-          if (pendingPartIndex !== null) {
-            setParts((prev) =>
-              prev.map((p, i) =>
-                i === pendingPartIndex ? { ...p, catalogPartId: part.id, partName: part.name } : p,
-              ),
-            );
-          }
           setPendingPartIndex(null);
-          setTimeout(() => handleSubmitRef.current(), Platform.OS === 'web' ? 0 : 100);
+          if (idx === null) return;
+          const updatedParts = parts.map((p, i) =>
+            i === idx ? { ...p, catalogPartId: part.id, partName: part.name } : p,
+          );
+          setParts(updatedParts);
+          handleSubmit(updatedParts);
         }}
       />
       <VehicleModal
@@ -456,17 +460,24 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
           setShowVehicleModal(false);
           setVehicleId(v.id);
           setVehicleText(vehicleLabel(v));
+          let resolvedClientId = clientId;
+          let resolvedClientText = clientText;
           if (v.clientId && v.clientId !== UNKNOWN_CLIENT_ID) {
             try {
               const cr = await get<{ data: Client }>(`/api/v1/catalog/clients/${v.clientId}`);
               setClientId(cr.data.id);
               setClientText(cr.data.name);
+              resolvedClientId = cr.data.id;
+              resolvedClientText = cr.data.name;
             } catch {
               // ignore
             }
           }
-          // Continue submit
-          setTimeout(() => handleSubmitCreate(), Platform.OS === 'web' ? 0 : 100);
+          if (!resolvedClientId && resolvedClientText.trim()) {
+            setShowClientModal(true);
+            return;
+          }
+          await doCreate(v.id, resolvedClientId ?? UNKNOWN_CLIENT_ID);
         }}
       />
       <ClientModal
@@ -477,9 +488,7 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
           setShowClientModal(false);
           setClientId(c.id);
           setClientText(c.name);
-          setTimeout(() => {
-            if (vehicleId) doCreate(vehicleId, c.id);
-          }, Platform.OS === 'web' ? 0 : 100);
+          if (vehicleId) doCreate(vehicleId, c.id);
         }}
       />
     </ScrollView>

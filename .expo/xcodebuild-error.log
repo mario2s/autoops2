@@ -1,6 +1,0 @@
-2026-05-24 23:20:01.968 xcodebuild[7179:2484429] Writing error result bundle to /var/folders/gc/x7ddvwts3rjgqlszy9psbyn00000gn/T/ResultBundle_2026-24-05_23-20-0001.xcresult
-xcodebuild: error: Timed out waiting for all destinations matching the provided destination specifier to become available
-
-
-	Available destinations for the "autoops2" scheme:
-		{ platform:iOS, arch:arm64, id:00008150-000858882139401C, name:Mario’s iPhone, error:Developer Mode disabled To use Mario’s iPhone for development, enable Developer Mode in Settings → Privacy & Security. }

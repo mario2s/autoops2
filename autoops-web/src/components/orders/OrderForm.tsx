@@ -306,7 +306,6 @@ export default function OrderForm({
   );
 
   // ── Submit state
-  const handleSubmitRef = useRef<() => void>(() => {});
   const [modal, setModal] = useState<Modal>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -377,12 +376,12 @@ export default function OrderForm({
   }
 
   // ── Validation
-  function validate() {
+  function validate(currentParts: PartRow[] = parts) {
     const errs: string[] = [];
     if (!vehicleQuery.trim()) errs.push('Vehicle is required');
     if (!deadlineDate || !deadlineTime) errs.push('Deadline is required');
-    if (parts.length === 0 && services.length === 0) errs.push('Add at least one part or service');
-    for (const p of parts) {
+    if (currentParts.length === 0 && services.length === 0) errs.push('Add at least one part or service');
+    for (const p of currentParts) {
       if (!p.name.trim() || !p.catalogPartId) errs.push('All parts must be selected from catalog');
       if (!p.qty || parseFloat(p.qty) <= 0) errs.push('Part quantities must be greater than 0');
       if (!p.unitPrice || parseFloat(p.unitPrice) < 0) errs.push('Part prices must be valid');
@@ -403,7 +402,11 @@ export default function OrderForm({
   }
 
   // ── Submit helpers
-  async function submitOrder(vehicleId: string, clientId: string) {
+  async function submitOrder(
+    vehicleId: string,
+    clientId: string,
+    currentParts: PartRow[] = parts,
+  ) {
     setSubmitting(true);
     const deadline = new Date(`${deadlineDate}T${deadlineTime}`).toISOString();
     const payload = {
@@ -411,7 +414,7 @@ export default function OrderForm({
       clientId,
       deadline,
       mechanicId: selectedMechanicId,
-      parts: parts.map((p) => ({
+      parts: currentParts.map((p) => ({
         catalogPartId: p.catalogPartId!,
         qty: parseFloat(p.qty),
         unitPrice: parseFloat(p.unitPrice),
@@ -440,13 +443,13 @@ export default function OrderForm({
   }
 
   // ── Main submit handler
-  async function handleSubmit() {
-    const unresolvedPart = parts.find((p) => p.name.trim() !== '' && !p.catalogPartId);
+  async function handleSubmit(currentParts: PartRow[] = parts) {
+    const unresolvedPart = currentParts.find((p) => p.name.trim() !== '' && !p.catalogPartId);
     if (unresolvedPart) {
       setModal({ type: 'part', partKey: unresolvedPart.key });
       return;
     }
-    const errs = validate();
+    const errs = validate(currentParts);
     if (errs.length > 0) { setErrors(errs); return; }
     setErrors([]);
 
@@ -463,7 +466,7 @@ export default function OrderForm({
       return;
     }
 
-    await submitOrder(vehicleId, clientId);
+    await submitOrder(vehicleId, clientId, currentParts);
   }
 
   // ── Vehicle modal callbacks
@@ -499,8 +502,6 @@ export default function OrderForm({
       await submitOrder(vehicleId, clientId);
     }
   }
-
-  handleSubmitRef.current = handleSubmit;
 
   // ─── Render ──────────────────────────────────────────────────────────────────
 
@@ -781,7 +782,7 @@ export default function OrderForm({
             </button>
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={() => handleSubmit()}
               disabled={submitting}
               className="px-5 py-2.5 text-sm font-medium rounded-lg bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors"
             >
@@ -808,9 +809,13 @@ export default function OrderForm({
           mode="create"
           initialName={parts.find((p) => p.key === modal.partKey)?.name ?? ''}
           onSuccess={(id, name) => {
-            updatePart(modal.partKey, { catalogPartId: id, name });
+            const partKey = modal.partKey;
+            const updatedParts = parts.map((r) =>
+              r.key === partKey ? { ...r, catalogPartId: id, name } : r,
+            );
+            setParts(updatedParts);
             setModal(null);
-            setTimeout(() => handleSubmitRef.current(), 0);
+            handleSubmit(updatedParts);
           }}
           onClose={() => setModal(null)}
         />
