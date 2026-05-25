@@ -75,5 +75,6 @@ const styles = StyleSheet.create({
   input: {
     height: 38,
     fontSize: 16,
+    borderRadius: 8,
   },
 });
