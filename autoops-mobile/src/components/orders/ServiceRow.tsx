@@ -68,7 +68,7 @@ export function ServiceRow({ value, hourlyRate, onChange, onRemove }: Props) {
           editable={isHourly}
           value={isHourly ? value.hours : ''}
           onChangeText={(t) => onChange({ ...value, hours: t })}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           placeholder="0"
           selectTextOnFocus
           placeholderTextColor={theme.textSecondary}
@@ -94,7 +94,7 @@ export function ServiceRow({ value, hourlyRate, onChange, onRemove }: Props) {
           <TextInput
             value={value.fixedAmount}
             onChangeText={(t) => onChange({ ...value, fixedAmount: t })}
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             placeholder="0.00"
             selectTextOnFocus
             placeholderTextColor={theme.textSecondary}

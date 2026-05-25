@@ -49,7 +49,7 @@ export function PartRow({ value, onChange, onRemove }: Props) {
         <TextInput
           value={value.qty}
           onChangeText={(t) => onChange({ ...value, qty: t })}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           placeholder="0"
           selectTextOnFocus
           placeholderTextColor={theme.textSecondary}
@@ -61,7 +61,7 @@ export function PartRow({ value, onChange, onRemove }: Props) {
         <TextInput
           value={value.unitPrice}
           onChangeText={(t) => onChange({ ...value, unitPrice: t })}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           placeholder="0.00"
           selectTextOnFocus
           placeholderTextColor={theme.textSecondary}

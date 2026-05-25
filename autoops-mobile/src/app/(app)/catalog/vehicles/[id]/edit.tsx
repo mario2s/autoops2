@@ -165,7 +165,7 @@ export default function EditVehicleScreen() {
                 <TextInput
                   value={year}
                   onChangeText={setYear}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
                 />
               </Field>

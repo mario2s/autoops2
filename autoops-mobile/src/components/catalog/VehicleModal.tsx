@@ -142,7 +142,7 @@ export function VehicleModal({
                   <TextInput
                     value={year}
                     onChangeText={setYear}
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     placeholderTextColor={theme.textSecondary}
                     style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
                   />
