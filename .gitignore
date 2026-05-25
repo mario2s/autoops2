@@ -12,6 +12,9 @@ ios/
 # claude code local settings (machine-specific; allowlist can capture secrets)
 .claude/
 
+# previews
+PREVIEWS/
+
 # misc
 .DS_Store
 *.pem

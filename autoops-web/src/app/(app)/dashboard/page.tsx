@@ -150,7 +150,7 @@ export default async function DashboardPage({
                     </div>
                   </div>
                   <div className="sm:hidden text-sm font-medium text-zinc-700 dark:text-zinc-300 shrink-0 ml-3">
-                    €{order.total.toFixed(2)}
+                    €{Math.round(order.total)}
                   </div>
                 </div>
 
@@ -219,7 +219,7 @@ export default async function DashboardPage({
 
                 {/* Total: desktop only (shown on mobile above) */}
                 <div className="hidden sm:block text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
-                  €{order.total.toFixed(2)}
+                  €{Math.round(order.total)}
                 </div>
 
                 {/* Delete: desktop only */}

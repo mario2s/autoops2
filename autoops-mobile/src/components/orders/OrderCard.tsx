@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useTheme } from '@/hooks/use-theme';
-import { formatCurrency, formatDate, isOverdue, vehicleLabel } from '@/lib/format';
+import { formatDate, isOverdue, vehicleLabel } from '@/lib/format';
 import type { OrderListItem } from '@/lib/types';
 
 type Props = {
@@ -34,7 +34,7 @@ export function OrderCard({ order, onPress }: Props) {
           </Text>
         </View>
         <Text style={[styles.total, { color: theme.textSecondary }]}>
-          {formatCurrency(order.totals.grand)}
+          ${Math.round(order.totals.grand ?? 0)}
         </Text>
       </View>
       <View style={styles.row}>
