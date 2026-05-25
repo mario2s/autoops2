@@ -9,6 +9,9 @@ node_modules/
 # native build output
 ios/
 
+# claude code local settings (machine-specific; allowlist can capture secrets)
+.claude/
+
 # misc
 .DS_Store
 *.pem
