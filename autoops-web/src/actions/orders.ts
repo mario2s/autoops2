@@ -359,7 +359,6 @@ export async function createCatalogPartAction(
       .insert(parts_catalog)
       .values({ name: name.trim(), created_by: session.userId })
       .returning({ id: parts_catalog.id, name: parts_catalog.name });
-    revalidatePath('/catalog');
     return part;
   } catch {
     return { error: 'A part with this name already exists' };
