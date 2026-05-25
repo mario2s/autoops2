@@ -64,7 +64,7 @@ function emptyPart(): PartRowValue {
 }
 
 function emptyService(): ServiceRowValue {
-  return { description: '', costType: 'hourly', hours: '1', rate: '0', fixedAmount: '0' };
+  return { description: '', costType: 'fixed', hours: '1', rate: '0', fixedAmount: '0' };
 }
 
 export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
@@ -82,7 +82,9 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
   const [clientId, setClientId] = useState<string | null>(initialOrder?.client.id ?? null);
   const [clientText, setClientText] = useState<string>(initialOrder?.client.name ?? '');
   const [deadline, setDeadline] = useState<Date | null>(
-    initialOrder ? new Date(initialOrder.deadline) : null,
+    initialOrder ? new Date(initialOrder.deadline) : (() => {
+      const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(d.getHours() + 1); return d;
+    })(),
   );
   const [parts, setParts] = useState<PartRowValue[]>(
     initialOrder

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -11,24 +12,29 @@ type Props = {
   disabled?: boolean;
 };
 
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatDisplay(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}  ·  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function toLocalInputValue(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function formatDisplay(d: Date): string {
-  return d.toLocaleString();
-}
-
 export function DateTimeField({ value, onChange, label, disabled }: Props) {
   const theme = useTheme();
-  const [showPicker, setShowPicker] = useState(false);
+  const [step, setStep] = useState<'idle' | 'date' | 'time'>('idle');
 
   if (Platform.OS === 'web') {
     return (
       <View>
         {label ? <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text> : null}
-        <View style={[styles.input, { backgroundColor: theme.backgroundElement }]}>
+        <View style={[styles.input, { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.5 : 1 }]}>
+          <Ionicons name="calendar-outline" size={16} color={theme.textMuted} />
           <TextInput
             // @ts-expect-error type prop is web-only
             type="datetime-local"
@@ -45,30 +51,47 @@ export function DateTimeField({ value, onChange, label, disabled }: Props) {
     );
   }
 
+  const base = value ?? new Date();
+
   return (
     <View>
       {label ? <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text> : null}
       <Pressable
         disabled={disabled}
-        onPress={() => setShowPicker(true)}
-        style={[
-          styles.input,
-          { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.5 : 1 },
-        ]}>
-        <Text style={{ color: value ? theme.text : theme.textSecondary, fontSize: 16 }}>
+        onPress={() => setStep('date')}
+        style={[styles.input, { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.5 : 1 }]}>
+        <Ionicons name="calendar-outline" size={16} color={theme.textMuted} />
+        <Text style={[styles.valueText, { color: value ? theme.text : theme.textSecondary }]}>
           {value ? formatDisplay(value) : 'Select date and time'}
         </Text>
       </Pressable>
-      {showPicker ? (
+
+      {step === 'date' && (
         <DateTimePicker
-          mode="datetime"
-          value={value ?? new Date()}
-          onChange={(_event, selectedDate) => {
-            setShowPicker(Platform.OS === 'ios');
-            if (selectedDate) onChange(selectedDate);
+          mode="date"
+          value={base}
+          onChange={(_event, selected) => {
+            if (selected) {
+              const merged = new Date(selected);
+              merged.setHours(base.getHours(), base.getMinutes(), 0, 0);
+              onChange(merged);
+              setStep('time');
+            } else {
+              setStep('idle');
+            }
           }}
         />
-      ) : null}
+      )}
+      {step === 'time' && (
+        <DateTimePicker
+          mode="time"
+          value={base}
+          onChange={(_event, selected) => {
+            setStep('idle');
+            if (selected) onChange(selected);
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -83,11 +106,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 14,
     height: 44,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  valueText: {
+    fontSize: 14,
+    flex: 1,
   },
   webInput: {
+    flex: 1,
     height: 44,
-    fontSize: 16,
+    fontSize: 14,
     borderWidth: 0,
     outlineStyle: 'none',
   } as any,
