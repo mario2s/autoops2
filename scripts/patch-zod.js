@@ -7,7 +7,11 @@
 const fs = require("fs");
 const path = require("path");
 
-const helpersDir = path.join(__dirname, "../node_modules/zod/v3/helpers");
+const zodDir = path.join(__dirname, "../node_modules/zod");
+if (!fs.existsSync(zodDir)) process.exit(0);
+
+const helpersDir = path.join(zodDir, "v3/helpers");
+fs.mkdirSync(helpersDir, { recursive: true });
 
 const typeAliases = path.join(helpersDir, "typeAliases.cjs");
 if (!fs.existsSync(typeAliases)) {
