@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { ClientModal } from '@/components/catalog/ClientModal';
+import { PartModal } from '@/components/catalog/PartModal';
 import { VehicleModal } from '@/components/catalog/VehicleModal';
 import { PartRow, type PartRowValue } from '@/components/orders/PartRow';
 import { ServiceRow, type ServiceRowValue } from '@/components/orders/ServiceRow';
@@ -27,6 +28,7 @@ import type {
   CreateOrderInput,
   OrderDetail,
   Paginated,
+  Part,
   Role,
   UpdateOrderInput,
   Vehicle,
@@ -109,6 +111,8 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
   );
 
   const [hourlyRate, setHourlyRate] = useState(30);
+  const [showPartModal, setShowPartModal] = useState(false);
+  const [pendingPartIndex, setPendingPartIndex] = useState<number | null>(null);
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -214,7 +218,17 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
     }
   }
 
+  function findFirstUnresolvedPart(): number {
+    return parts.findIndex((p) => p.partName.trim() !== '' && !p.catalogPartId);
+  }
+
   async function handleSubmitCreate() {
+    const unresolvedIdx = findFirstUnresolvedPart();
+    if (unresolvedIdx !== -1) {
+      setPendingPartIndex(unresolvedIdx);
+      setShowPartModal(true);
+      return;
+    }
     const err = validate();
     if (err) {
       setError(err);
@@ -240,6 +254,12 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
 
   async function handleSubmitEdit() {
     if (!orderId) return;
+    const unresolvedIdx = findFirstUnresolvedPart();
+    if (unresolvedIdx !== -1) {
+      setPendingPartIndex(unresolvedIdx);
+      setShowPartModal(true);
+      return;
+    }
     const err = validate();
     if (err) {
       setError(err);
@@ -408,6 +428,23 @@ export function OrderForm({ mode, role, orderId, initialOrder }: Props) {
         )}
       </Pressable>
 
+      <PartModal
+        visible={showPartModal}
+        initialName={pendingPartIndex !== null ? (parts[pendingPartIndex]?.partName ?? '') : ''}
+        onClose={() => { setShowPartModal(false); setPendingPartIndex(null); }}
+        onCreated={(part: Part) => {
+          setShowPartModal(false);
+          if (pendingPartIndex !== null) {
+            setParts((prev) =>
+              prev.map((p, i) =>
+                i === pendingPartIndex ? { ...p, catalogPartId: part.id, partName: part.name } : p,
+              ),
+            );
+          }
+          setPendingPartIndex(null);
+          setTimeout(() => handleSubmit(), Platform.OS === 'web' ? 0 : 100);
+        }}
+      />
       <VehicleModal
         visible={showVehicleModal}
         initialDescription={vehicleText}

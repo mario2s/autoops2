@@ -12,6 +12,7 @@ import {
 } from '@/actions/orders';
 import VehicleModal from './VehicleModal';
 import ClientModal from './ClientModal';
+import PartModal from '../catalog/PartModal';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ type ServiceRow = {
 
 type Modal =
   | null
+  | { type: 'part'; partKey: string }
   | { type: 'vehicle' }
   | { type: 'client'; pendingVehicle: Omit<VehicleData, 'clientId'> | null };
 
@@ -438,6 +440,11 @@ export default function OrderForm({
 
   // ── Main submit handler
   async function handleSubmit() {
+    const unresolvedPart = parts.find((p) => p.name.trim() !== '' && !p.catalogPartId);
+    if (unresolvedPart) {
+      setModal({ type: 'part', partKey: unresolvedPart.key });
+      return;
+    }
     const errs = validate();
     if (errs.length > 0) { setErrors(errs); return; }
     setErrors([]);
@@ -793,6 +800,18 @@ export default function OrderForm({
       )}
 
       {/* ── Modals ── */}
+      {modal?.type === 'part' && (
+        <PartModal
+          mode="create"
+          initialName={parts.find((p) => p.key === modal.partKey)?.name ?? ''}
+          onSuccess={(id, name) => {
+            updatePart(modal.partKey, { catalogPartId: id, name });
+            setModal(null);
+            setTimeout(() => handleSubmit(), 0);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
       {modal?.type === 'vehicle' && (
         <VehicleModal
           vehicleInput={vehicleQuery}

@@ -11,7 +11,7 @@ type Part = {
 };
 
 type Props =
-  | { mode: 'create'; onSuccess: (id: string, name: string) => void; onClose: () => void }
+  | { mode: 'create'; initialName?: string; onSuccess: (id: string, name: string) => void; onClose: () => void }
   | { mode: 'edit'; part: Part; onSuccess: (id: string, name: string) => void; onClose: () => void };
 
 function formatDate(d: Date) {
@@ -19,7 +19,7 @@ function formatDate(d: Date) {
 }
 
 export default function PartModal(props: Props) {
-  const [name, setName] = useState(props.mode === 'edit' ? props.part.name : '');
+  const [name, setName] = useState(props.mode === 'edit' ? props.part.name : (props.initialName ?? ''));
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
