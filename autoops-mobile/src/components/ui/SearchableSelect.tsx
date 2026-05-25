@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
   input: {
     height: 44,
     fontSize: 16,
+    borderRadius: 10,
   },
   dropdown: {
     marginTop: 4,

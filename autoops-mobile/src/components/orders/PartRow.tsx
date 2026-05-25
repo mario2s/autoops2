@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 8,
     paddingHorizontal: 10,
-    fontSize: 14,
+    fontSize: 16,
   },
   totalText: { fontSize: 15, fontWeight: '600', paddingVertical: 10 },
   remove: {

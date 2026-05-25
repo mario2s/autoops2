@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 8,
     paddingHorizontal: 10,
-    fontSize: 14,
+    fontSize: 16,
   },
   rateText: {
     fontSize: 14,
