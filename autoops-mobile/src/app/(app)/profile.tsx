@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -25,10 +26,10 @@ export default function ProfileScreen() {
   const { preference, setPreference } = useThemePreference();
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const themeOptions: { value: ThemePreference; label: string }[] = [
-    { value: 'system', label: 'System' },
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' },
+  const themeOptions: { value: ThemePreference; label: string; icon: React.ComponentProps<typeof Ionicons>['name'] }[] = [
+    { value: 'system', label: 'System', icon: 'contrast-outline' },
+    { value: 'light', label: 'Light', icon: 'sunny-outline' },
+    { value: 'dark', label: 'Dark', icon: 'moon-outline' },
   ];
 
   async function doLogout() {
@@ -60,8 +61,9 @@ export default function ProfileScreen() {
         <View style={styles.themeSection}>
           <Text style={[styles.themeLabel, { color: theme.textSecondary }]}>Theme</Text>
           <View style={[styles.themePicker, { backgroundColor: theme.backgroundElement }]}>
-            {themeOptions.map(({ value, label }) => {
+            {themeOptions.map(({ value, label, icon }) => {
               const active = preference === value;
+              const color = active ? theme.text : theme.textMuted;
               return (
                 <Pressable
                   key={value}
@@ -70,13 +72,8 @@ export default function ProfileScreen() {
                     styles.themeBtn,
                     active && { backgroundColor: theme.background },
                   ]}>
-                  <Text
-                    style={[
-                      styles.themeBtnText,
-                      { color: active ? theme.text : theme.textMuted },
-                    ]}>
-                    {label}
-                  </Text>
+                  <Ionicons name={icon} size={14} color={color} />
+                  <Text style={[styles.themeBtnText, { color }]}>{label}</Text>
                 </Pressable>
               );
             })}
@@ -151,6 +148,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 6,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 4,
   },
   themeBtnText: { fontSize: 12, fontWeight: '500' },
   logout: {
