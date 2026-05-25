@@ -111,36 +111,39 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      {/* Orders table */}
-      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
-        {/* Column headers */}
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}>
-          {['Vehicle / Client', 'Mechanic', 'Status', 'Deadline', 'Total', ...(isAdmin ? [''] : [])].map((col, i) => (
-            <span
-              key={i}
-              className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide"
-            >
-              {col}
-            </span>
-          ))}
-        </div>
-
-        {orders.length === 0 ? (
+      {/* Empty state */}
+      {orders.length === 0 && (
+        <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
           <div className="flex items-center justify-center py-16 text-sm text-zinc-400 dark:text-zinc-500">
             No orders found
           </div>
-        ) : (
-          orders.map((order) => {
-            const overdue = isOverdue(order.deadline, order.status);
-            return (
-              <div
-                key={order.id}
-                className={`relative px-4 sm:px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors sm:grid sm:gap-3 ${isAdmin ? 'sm:grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'sm:grid-cols-[1fr_160px_130px_110px_90px]'}`}
-              >
-                <Link href={`/orders/${order.id}/edit`} className="absolute inset-0" aria-label={`Edit order ${order.vehicleDisplay}`} />
+        </div>
+      )}
 
-                {/* Row 1: Vehicle + Client (left) | Total (right, mobile only) */}
-                <div className="flex items-start justify-between sm:block mb-1 sm:mb-0">
+      {orders.length > 0 && (
+        <>
+          {/* ── Desktop: table (sm+) ── */}
+          <div className="hidden sm:block rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+            <div className={`grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}>
+              {['Vehicle / Client', 'Mechanic', 'Status', 'Deadline', 'Total', ...(isAdmin ? [''] : [])].map((col, i) => (
+                <span
+                  key={i}
+                  className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide"
+                >
+                  {col}
+                </span>
+              ))}
+            </div>
+
+            {orders.map((order) => {
+              const overdue = isOverdue(order.deadline, order.status);
+              return (
+                <div
+                  key={order.id}
+                  className={`relative px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors grid gap-3 items-center ${isAdmin ? 'grid-cols-[1fr_160px_130px_110px_90px_28px]' : 'grid-cols-[1fr_160px_130px_110px_90px]'}`}
+                >
+                  <Link href={`/orders/${order.id}/edit`} className="absolute inset-0" aria-label={`Edit order ${order.vehicleDisplay}`} />
+
                   <div>
                     <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 leading-tight">
                       {order.vehicleDisplay}
@@ -149,35 +152,25 @@ export default async function DashboardPage({
                       {order.clientName}
                     </div>
                   </div>
-                  <div className="sm:hidden text-sm font-medium text-zinc-700 dark:text-zinc-300 shrink-0 ml-3">
-                    €{Math.round(order.total)}
+
+                  <div className="relative z-10">
+                    {isAdmin ? (
+                      <MechanicBadge
+                        orderId={order.id}
+                        mechanicId={order.mechanicId}
+                        mechanicName={order.mechanicName}
+                        mechanics={mechanics}
+                      />
+                    ) : (
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400">{order.mechanicName}</span>
+                    )}
                   </div>
-                </div>
 
-                {/* Mechanic */}
-                <div className="relative z-10 mt-2 sm:mt-0 sm:self-center">
-                  <span className="sm:hidden text-xs text-zinc-400 mr-1">Mechanic:</span>
-                  {isAdmin ? (
-                    <MechanicBadge
-                      orderId={order.id}
-                      mechanicId={order.mechanicId}
-                      mechanicName={order.mechanicName}
-                      mechanics={mechanics}
-                    />
-                  ) : (
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">{order.mechanicName}</span>
-                  )}
-                </div>
-
-                {/* Row 3 on mobile: Status + Deadline + Delete */}
-                <div className="flex items-center gap-3 mt-1.5 sm:mt-0 sm:contents">
-                  {/* Status badge */}
-                  <div className="relative z-10 sm:self-center">
+                  <div className="relative z-10">
                     <StatusBadge orderId={order.id} status={order.status} />
                   </div>
 
-                  {/* Deadline */}
-                  <div className="sm:self-center">
+                  <div>
                     {overdue ? (
                       <span className="flex items-center gap-1 text-xs font-medium text-red-500 dark:text-red-400">
                         <svg
@@ -189,15 +182,7 @@ export default async function DashboardPage({
                           className="shrink-0"
                         >
                           <circle cx="6" cy="6" r="5.5" stroke="currentColor" />
-                          <line
-                            x1="6"
-                            y1="3.5"
-                            x2="6"
-                            y2="6.5"
-                            stroke="currentColor"
-                            strokeWidth="1.2"
-                            strokeLinecap="round"
-                          />
+                          <line x1="6" y1="3.5" x2="6" y2="6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                           <circle cx="6" cy="8.5" r="0.6" fill="currentColor" />
                         </svg>
                         {formatDeadline(order.deadline)}
@@ -209,30 +194,105 @@ export default async function DashboardPage({
                     )}
                   </div>
 
-                  {/* Delete: inline with status on mobile, own column on desktop */}
+                  <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    €{Math.round(order.total)}
+                  </div>
+
                   {isAdmin && (
-                    <div className="relative z-10 sm:hidden ml-auto">
+                    <div className="relative z-10">
                       <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
                     </div>
                   )}
                 </div>
+              );
+            })}
+          </div>
 
-                {/* Total: desktop only (shown on mobile above) */}
-                <div className="hidden sm:block text-sm text-zinc-600 dark:text-zinc-400 sm:self-center">
-                  €{Math.round(order.total)}
-                </div>
+          {/* ── Mobile: cards (below sm) ── */}
+          <div className="sm:hidden flex flex-col gap-2">
+            {orders.map((order) => {
+              const overdue = isOverdue(order.deadline, order.status);
+              return (
+                <div
+                  key={order.id}
+                  className="relative rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-50 dark:bg-zinc-900"
+                >
+                  <Link
+                    href={`/orders/${order.id}/edit`}
+                    className="absolute inset-0"
+                    aria-label={`Edit order ${order.vehicleDisplay}`}
+                  />
 
-                {/* Delete: desktop only */}
-                {isAdmin && (
-                  <div className="relative z-10 hidden sm:block sm:self-center">
-                    <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
+                  {/* Top: vehicle + client | delete */}
+                  <div className="flex items-start justify-between px-4 pt-3 pb-2.5">
+                    <div>
+                      <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 leading-tight">
+                        {order.vehicleDisplay}
+                      </div>
+                      <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        {order.clientName}
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="relative z-10 -mt-1 -mr-2 shrink-0">
+                        <DeleteButton action={deleteOrderAction.bind(null, order.id)} label="order" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+
+                  {/* Bottom strip: mechanic + status | total + deadline */}
+                  <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700/60 px-4 py-2.5">
+                    <div className="relative z-10 flex items-center gap-2 min-w-0">
+                      {isAdmin ? (
+                        <MechanicBadge
+                          orderId={order.id}
+                          mechanicId={order.mechanicId}
+                          mechanicName={order.mechanicName}
+                          mechanics={mechanics}
+                        />
+                      ) : (
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                          {order.mechanicName}
+                        </span>
+                      )}
+                      <div className="relative z-10 shrink-0">
+                        <StatusBadge orderId={order.id} status={order.status} />
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0 ml-3">
+                      <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                        €{Math.round(order.total)}
+                      </div>
+                      {overdue ? (
+                        <span className="flex items-center justify-end gap-0.5 text-xs font-medium text-red-500 dark:text-red-400">
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            aria-hidden="true"
+                            className="shrink-0"
+                          >
+                            <circle cx="6" cy="6" r="5.5" stroke="currentColor" />
+                            <line x1="6" y1="3.5" x2="6" y2="6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                            <circle cx="6" cy="8.5" r="0.6" fill="currentColor" />
+                          </svg>
+                          {formatDeadline(order.deadline)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                          {formatDeadline(order.deadline)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Pagination */}
       <div className="mt-4 flex items-center justify-between gap-4">
