@@ -130,7 +130,7 @@ export const openApiSpec = {
         required: ['catalogPartId', 'qty', 'unitPrice'],
         properties: {
           catalogPartId: { type: 'string', format: 'uuid' },
-          qty: { type: 'number', exclusiveMinimum: 0 },
+          qty: { type: 'number', minimum: 0, exclusiveMinimum: true },
           unitPrice: { type: 'number', minimum: 0 },
         },
       },
@@ -140,7 +140,7 @@ export const openApiSpec = {
         properties: {
           description: { type: 'string' },
           costType: { type: 'string', enum: ['hourly', 'fixed'] },
-          hours: { type: 'number', exclusiveMinimum: 0, nullable: true },
+          hours: { type: 'number', minimum: 0, exclusiveMinimum: true, nullable: true },
           rate: { type: 'number', minimum: 0, nullable: true },
           fixedAmount: { type: 'number', minimum: 0, nullable: true },
         },
