@@ -82,6 +82,10 @@ const inputCls =
 const smallInputCls =
   'w-full px-2.5 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 
+// smallInputCls without w-full — used for card-bottom inputs that need explicit widths
+const compactInputCls =
+  'px-2.5 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+
 // ─── SearchField ──────────────────────────────────────────────────────────────
 
 type SearchFieldProps<T> = {
@@ -720,7 +724,7 @@ export default function OrderForm({
             {services.length > 0 && (
               <div className="px-3 sm:px-5 pt-4 pb-2">
                 {/* Column headers: desktop only */}
-                <div className="hidden sm:grid grid-cols-[1fr_88px_64px_80px_80px_28px] gap-2 mb-2">
+                <div className="hidden sm:grid grid-cols-[1fr_104px_64px_80px_80px_28px] gap-2 mb-2">
                   {['Description', 'Type', 'Hours', 'Rate €/h', 'Total', ''].map((h) => (
                     <span key={h} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
                       {h}
@@ -915,10 +919,11 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
   const total = partTotal(row);
 
   return (
-    // Mobile: block with stacked rows. Desktop (sm+): 5-column grid.
-    <div className="sm:grid sm:grid-cols-[1fr_64px_96px_72px_28px] sm:gap-2 sm:items-start">
-      {/* Row 1 on mobile: part name (left) + remove button (right) */}
-      <div className="flex items-start gap-1.5 mb-1.5 sm:mb-0 sm:contents">
+    // Mobile: card with top/bottom strips. Desktop (sm+): 5-column grid row.
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden sm:border-0 sm:rounded-none sm:overflow-visible sm:grid sm:grid-cols-[1fr_64px_96px_72px_28px] sm:gap-2 sm:items-start">
+
+      {/* Card top strip (mobile) / name cell (desktop) */}
+      <div className="flex items-start gap-1.5 px-2.5 py-2 sm:p-0 sm:contents">
         <div ref={containerRef} className="relative flex-1 sm:flex-none">
           <input
             type="text"
@@ -958,7 +963,7 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
             </ul>
           )}
         </div>
-        {/* Remove: top-right on mobile, hidden on desktop (rendered below) */}
+        {/* Remove: top-right corner of card on mobile, hidden on desktop */}
         <button
           type="button"
           onClick={onRemove}
@@ -969,8 +974,11 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
         </button>
       </div>
 
-      {/* Row 2 on mobile: qty + unit price + total | on desktop: sm:contents → grid cells 2–5 */}
-      <div className="flex items-center gap-2 sm:contents">
+      {/* Divider between card top and bottom strips — mobile only */}
+      <div className="sm:hidden h-px bg-zinc-100 dark:bg-zinc-800" />
+
+      {/* Card bottom strip (mobile) / numeric cells (desktop) */}
+      <div className="flex items-center gap-2 px-2.5 py-2 sm:p-0 sm:contents">
         <input
           type="number"
           value={row.qty}
@@ -978,8 +986,10 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
           min="0.01"
           step="0.01"
           placeholder="1"
-          className={`${smallInputCls} w-16 sm:w-auto`}
+          className={`${compactInputCls} w-11 sm:w-full shrink-0`}
         />
+        {/* × separator: mobile only (display:none at sm+ so no grid cell consumed) */}
+        <span className="sm:hidden text-xs text-zinc-400 dark:text-zinc-600 shrink-0">×</span>
         <input
           type="number"
           value={row.unitPrice}
@@ -987,12 +997,12 @@ function PartRowInput({ row, onChange, onRemove }: PartRowInputProps) {
           min="0"
           step="0.01"
           placeholder="0.00"
-          className={`${smallInputCls} flex-1 sm:flex-none`}
+          className={`${compactInputCls} flex-1 sm:flex-none sm:w-full`}
         />
-        <div className="py-1.5 text-right text-sm text-zinc-500 dark:text-zinc-400 font-medium tabular-nums w-[68px] shrink-0 sm:w-auto">
+        <span className="ml-auto sm:ml-0 sm:py-1.5 sm:text-right sm:min-w-[72px] text-sm font-medium text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
           {total > 0 ? fmt(total) : '—'}
-        </div>
-        {/* Remove: desktop only (shown above on mobile) */}
+        </span>
+        {/* Remove: desktop only */}
         <button
           type="button"
           onClick={onRemove}
@@ -1020,10 +1030,11 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
   const total = serviceTotal(row);
 
   return (
-    // Mobile: block with stacked rows. Desktop (sm+): 6-column grid.
-    <div className="sm:grid sm:grid-cols-[1fr_88px_64px_80px_80px_28px] sm:gap-2 sm:items-center">
-      {/* Row 1 on mobile: description (left) + remove (right) */}
-      <div className="flex items-center gap-1.5 mb-1.5 sm:mb-0 sm:contents">
+    // Mobile: card with top/bottom strips. Desktop (sm+): 6-column grid row.
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden sm:border-0 sm:rounded-none sm:overflow-visible sm:grid sm:grid-cols-[1fr_104px_64px_80px_80px_28px] sm:gap-2 sm:items-center">
+
+      {/* Card top strip (mobile) / description cell (desktop) */}
+      <div className="flex items-center gap-1.5 px-2.5 py-2 sm:p-0 sm:contents">
         <input
           type="text"
           value={row.description}
@@ -1031,7 +1042,7 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           placeholder="Description"
           className={`${smallInputCls} flex-1 sm:flex-none`}
         />
-        {/* Remove: top-right on mobile, hidden on desktop */}
+        {/* Remove: top-right corner of card on mobile, hidden on desktop */}
         <button
           type="button"
           onClick={onRemove}
@@ -1042,17 +1053,21 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
         </button>
       </div>
 
-      {/* Row 2 on mobile: type toggle + hours | on desktop: sm:contents → grid cells 2–3 */}
-      <div className="flex items-center gap-2 mb-1.5 sm:mb-0 sm:contents">
-        {/* Type toggle */}
-        <div className="flex rounded-md border border-zinc-200 dark:border-zinc-700 overflow-hidden text-xs flex-1 sm:flex-none">
+      {/* Divider between card top and bottom strips — mobile only */}
+      <div className="sm:hidden h-px bg-zinc-100 dark:bg-zinc-800" />
+
+      {/* Card bottom strip (mobile) / cells 2–6 (desktop via sm:contents) */}
+      <div className="flex items-center gap-2 px-2.5 py-2 sm:p-0 sm:contents">
+
+        {/* Type toggle → desktop col 2 */}
+        <div className="flex shrink-0">
           <button
             type="button"
             onClick={() => onChange({ costType: 'hourly' })}
-            className={`flex-1 py-1.5 text-center transition-colors ${
+            className={`flex-1 px-2 py-1.5 text-sm rounded-l-md border border-r-0 transition-colors ${
               hourly
-                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
-                : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium border-zinc-900 dark:border-zinc-50'
+                : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
             }`}
           >
             Hourly
@@ -1060,15 +1075,17 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           <button
             type="button"
             onClick={() => onChange({ costType: 'fixed' })}
-            className={`flex-1 py-1.5 text-center transition-colors ${
+            className={`flex-1 px-2 py-1.5 text-sm rounded-r-md border transition-colors ${
               !hourly
-                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium'
-                : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium border-zinc-900 dark:border-zinc-50'
+                : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
             }`}
           >
             Fixed
           </button>
         </div>
+
+        {/* Hours input → desktop col 3; hidden on mobile when fixed */}
         <input
           type="number"
           value={row.hours}
@@ -1077,12 +1094,15 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           step="0.5"
           placeholder="0"
           disabled={!hourly}
-          className={`${smallInputCls} w-20 sm:w-auto`}
+          className={`${compactInputCls} w-12 sm:w-full shrink-0 ${!hourly ? 'hidden sm:block' : ''}`}
         />
-      </div>
 
-      {/* Row 3 on mobile: rate + total/amount + desktop remove | on desktop: sm:contents → grid cells 4–6 */}
-      <div className="flex items-center gap-2 sm:contents">
+        {/* Rate label → mobile + hourly only (sm:hidden = no desktop grid cell consumed) */}
+        <span className={`text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap shrink-0 sm:hidden${!hourly ? ' hidden' : ''}`}>
+          @ €{row.rate}/h
+        </span>
+
+        {/* Rate input → desktop only → col 4 */}
         <input
           type="number"
           value={row.rate}
@@ -1092,9 +1112,28 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           placeholder="0.00"
           disabled={!hourly}
           readOnly={rateReadOnly}
-          className={`${smallInputCls} flex-1 sm:flex-none ${rateReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`${smallInputCls} hidden sm:block ${rateReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
-        {/* Total — editable only for fixed */}
+
+        {/* Mobile right side: fixed-amount input (fixed only) + total — sm:hidden = no desktop grid cells */}
+        <div className="sm:hidden ml-auto flex items-center gap-1.5 shrink-0">
+          {!hourly && (
+            <input
+              type="number"
+              value={row.fixedAmount}
+              onChange={(e) => onChange({ fixedAmount: e.target.value })}
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              className={`${compactInputCls} w-16 text-right`}
+            />
+          )}
+          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap min-w-[3rem] text-right">
+            {total > 0 ? fmt(total) : '—'}
+          </span>
+        </div>
+
+        {/* Desktop: total (hourly, read-only) or fixed-amount (editable) → col 5 */}
         <input
           type="number"
           value={hourly ? (total > 0 ? total.toFixed(2) : '') : row.fixedAmount}
@@ -1103,9 +1142,10 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           min="0"
           step="0.01"
           placeholder="0.00"
-          className={`${smallInputCls} flex-1 sm:flex-none ${hourly ? 'opacity-50 cursor-not-allowed' : 'border-zinc-300 dark:border-zinc-600'}`}
+          className={`${smallInputCls} hidden sm:block ${hourly ? 'opacity-50 cursor-not-allowed' : 'border-zinc-300 dark:border-zinc-600'}`}
         />
-        {/* Remove: desktop only (shown above on mobile) */}
+
+        {/* Remove: desktop only → col 6 */}
         <button
           type="button"
           onClick={onRemove}
@@ -1114,6 +1154,7 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
         >
           ×
         </button>
+
       </div>
     </div>
   );
