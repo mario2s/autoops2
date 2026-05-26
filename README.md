@@ -3,7 +3,7 @@
 Every solution needs a problem — and this one starts with a friend running a local car repair shop with no formal tracking system in place. This app was built to fix that:
 
 - Records — a digital log of all repairs
-- Traceability — full history and status of every job
+- Traceability — full history and status of every order
 - Deadlines — set and monitor due dates for ongoing work
 - Quick answers — instant cost estimates and running totals
 
