@@ -82,7 +82,7 @@ export default async function InsightsPage() {
       </div>
 
       {/* KPI tiles */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-5 py-4">
           <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
             YTD Revenue
@@ -104,6 +104,18 @@ export default async function InsightsPage() {
           </div>
           <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5">
             Open orders not yet marked as Done
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
+          <div className="text-xs font-medium uppercase tracking-wider mb-2" style={{ color: '#ec4899' }}>
+            Total Orders
+          </div>
+          <div className="text-3xl font-bold tracking-tight" style={{ color: '#ec4899' }}>
+            {data.totalOrders.toLocaleString('en-US')}
+          </div>
+          <div className="text-xs mt-1.5" style={{ color: '#ec4899' }}>
+            For the EXAM Scalability Requirement
           </div>
         </div>
       </div>

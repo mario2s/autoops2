@@ -315,6 +315,7 @@ export type InsightsTopItem = { name: string; revenue: number };
 export type InsightsData = {
   ytdRevenue: number;
   backlogRevenue: number;
+  totalOrders: number;
   topClients: InsightsTopItem[];
   topServices: InsightsTopItem[];
   topParts: InsightsTopItem[];
@@ -342,6 +343,10 @@ export async function getInsightsData(): Promise<InsightsData> {
     .select({ total: sql<string>`COALESCE(SUM(${orderTotalExpr}), 0)` })
     .from(orders)
     .where(ne(orders.status, 'done'));
+
+  const [totalOrdersRow] = await db
+    .select({ count: sql<string>`COUNT(*)` })
+    .from(orders);
 
   const clientRevenue = sql<string>`SUM(${orderTotalExpr})`;
   const topClientsRows = await db
@@ -379,6 +384,7 @@ export async function getInsightsData(): Promise<InsightsData> {
   return {
     ytdRevenue: parseFloat(ytdRow.total),
     backlogRevenue: parseFloat(backlogRow.total),
+    totalOrders: parseInt(totalOrdersRow.count, 10),
     topClients: topClientsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
     topServices: topServicesRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
     topParts: topPartsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
