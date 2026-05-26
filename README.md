@@ -1,91 +1,24 @@
 # AutoOps
 
-Car shop operations management system — repair order lifecycle, client and vehicle tracking, parts catalog, and business insights.
+Every solution needs a problem — and this one starts with a friend running a local car repair shop with no formal tracking system in place. This app was built to fix that:
+
+- Records — a digital log of all repairs
+- Traceability — full history and status of every job
+- Deadlines — set and monitor due dates for ongoing work
+- Quick answers — instant cost estimates and running totals
 
 ---
 
-## Monorepo Structure
+## Platform
 
-This is an npm workspace monorepo with two packages.
+| | Web App | Mobile App |
+|---|---|---|
+| **Stack** | Next.js + Neon DB + Drizzle ORM + Tailwind | React Native + Expo |
+| **Auth** | JWT + bcrypt | Bearer token (JWT) |
+| **Role** | Back-end API + web front-end | Mobile client consuming web API |
+| **Primary use** | Full capabilities | Order processing |
 
-```
-autoops2/                          npm workspace root
-├── package.json                   workspaces config; root dev/build scripts
-│
-├── autoops-web/                   Next.js web app (back-end + admin UI)
-│   ├── src/
-│   │   ├── actions/               Server Actions
-│   │   │   ├── auth.ts            login, register
-│   │   │   ├── orders.ts          create/update orders, vehicles, clients, mechanic assignment
-│   │   │   ├── admin.ts           account management
-│   │   │   └── delete.ts          order deletion
-│   │   ├── app/
-│   │   │   ├── (app)/             authenticated routes (JWT middleware-gated)
-│   │   │   │   ├── dashboard/     orders list with status and mechanic controls
-│   │   │   │   ├── orders/        order create + edit forms
-│   │   │   │   ├── catalog/       parts, clients, and vehicles tabs
-│   │   │   │   ├── clients/       client create + edit (with vehicle list)
-│   │   │   │   ├── vehicles/      vehicle create + edit
-│   │   │   │   ├── insights/      admin-only analytics
-│   │   │   │   └── admin/         mechanic account management + hourly rate
-│   │   │   ├── (auth)/            public routes
-│   │   │   │   ├── login/
-│   │   │   │   └── register/
-│   │   │   └── api/
-│   │   │       ├── order-form/    typeahead search (vehicles, clients, parts, mechanics)
-│   │   │       └── suggestions/   general suggestion endpoint
-│   │   ├── components/
-│   │   │   ├── orders/            OrderForm, StatusBadge, MechanicBadge, modals
-│   │   │   └── catalog/           client/vehicle/parts-catalog forms and modals
-│   │   ├── db/
-│   │   │   ├── schema.ts          Drizzle table definitions
-│   │   │   ├── queries.ts         all read queries
-│   │   │   ├── migrations/        SQL migration files (Drizzle Kit)
-│   │   │   ├── seed.ts            base seed (users, clients, vehicles, parts)
-│   │   │   └── seed-orders.ts     order seed with parts and services
-│   │   ├── lib/
-│   │   │   └── session.ts         JWT session helpers (jose)
-│   │   └── middleware.ts           route auth guard
-│   ├── drizzle.config.ts
-│   └── next.config.ts
-│
-└── autoops-mobile/                React Native / Expo mobile app
-    └── src/
-        ├── app/                   Expo Router screens (_layout, index, explore)
-        ├── components/            shared UI (tabs, themed text/view, icons)
-        ├── constants/             theme tokens
-        └── hooks/                 color scheme + theme hooks
-```
-
-### Root scripts
-
-| Command | What it does |
-|---|---|
-| `npm run dev` | Starts both web (`next dev`) and mobile (`expo start`) in parallel |
-| `npm run build` | Builds all workspaces |
-
-### Web scripts (`-w autoops-web`)
-
-| Command | What it does |
-|---|---|
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build |
-| `npm run db:generate` | Generate Drizzle migrations from schema changes |
-| `npm run db:migrate` | Apply pending migrations to the database |
-| `npm run db:studio` | Open Drizzle Studio (DB browser) |
-| `npm run db:seed` | Seed base data |
-| `npm run db:seed-orders` | Seed realistic order data |
-
-### Mobile scripts (`-w autoops-mobile`)
-
-| Command | What it does |
-|---|---|
-| `npm run start` | Expo dev server |
-| `npm run ios` | Run on iOS simulator |
-| `npm run android` | Run on Android emulator |
-| `npm run web` | Run in browser via Expo Web |
-
----
+> The **Web App** is capable to work on Mobile devices with full set of capabilities.
 
 ## Order Statuses
 
@@ -129,22 +62,22 @@ autoops2/                          npm workspace root
 ### 🔑 Mechanic
 - Create and manage their **own orders** only
 - Change order status on their orders
-- Register new clients and vehicles inline during order creation
+- Register new clients and vehicles
 - Add parts to the shared catalog inline
 - New accounts are **fully locked out until approved** by an Admin
 
-### 👑 Admin
+### 👑 Admin (Main Mechanic)
 Everything a Mechanic can do, plus:
-- **Full order visibility** — view and edit all orders regardless of ownership
+- **Full order visibility** — view and edit all orders regardless of ownership + delete
 - **Reassign orders** to a different mechanic
 - **Modify deadlines** on any order
-- **Parts catalog** — full edit access (add, edit, remove); changes affect historical data
-- **Clients list** — full edit access, including vehicle reassignment
+- **Parts catalog** — full CRUD
+- **Clients list** — full CRUD
+- **Vehicles List** — full CRUD
 - **Insights & Analytics** — exclusive access
 - **Account management** — approve pending accounts, activate or deactivate mechanics
 - **Set the universal hourly rate** — used for time-based service cost calculations
 
-> 💡 **Future:** Per-mechanic rates based on experience and location are planned but not in scope.
 
 ---
 
@@ -152,32 +85,16 @@ Everything a Mechanic can do, plus:
 
 Accessible to **Admins only**.
 
-**Mechanic Performance**
-- Revenue generated
-- Average revenue per order
-- On-time completion rate
+<span style="color: hotpink">**Total Orders: For the EXAM Scalability Requirement**</span>
 
-**Client Analytics**
-- Revenue generated
-- Average revenue per order
-- Number of orders in the last 12 months
+**Year-to-date business performance**
+- YTD Revenue: From completed orders — Jan 1 to today
+- Backlog Revenue: Open orders not yet marked as Done
 
-**Operations**
-- Active order backlog and deadline overview
-- Revenue trends and order throughput
-
----
-
-## Platform
-
-| | Web App | Mobile App |
-|---|---|---|
-| **Stack** | Next.js + Neon DB + Drizzle ORM + Tailwind | React Native + Expo |
-| **Auth** | JWT + bcrypt | Bearer token (JWT) |
-| **Role** | Back-end API + web front-end | Mobile client consuming web API |
-| **Primary use** | Admin, insights, account management | Order processing (primary interface) |
-
-> Mobile is the **primary interface for order processing**. The web app is the primary interface for admin operations and insights.
+**YTD revenue generated**
+- Top 5 Clients
+- Top 5 Services
+- Top 5 Parts
 
 ---
 
@@ -188,24 +105,88 @@ Accessible to **Admins only**.
 
 ---
 
-## Key Features
+## Features Backlog
 
-- ✅ Repair order lifecycle — Booked → In Progress → Awaiting → Payment → Done
-- ✅ Parts and services segments with automatic subtotals and grand total
-- ✅ Flexible labor cost — hourly (universal rate) or fixed per job
-- ✅ Parts catalog with inline creation; per-order pricing (no catalog prices)
-- ✅ Inline client and vehicle registration during order creation
-- ✅ Unknown client placeholder with admin vehicle reassignment
-- ✅ Deadline tracking with visual overdue flagging
-- ✅ Role-based access — Mechanic and Admin
-- ✅ Admin approval and activation workflow for mechanic accounts
-- ✅ Universal hourly rate management via admin panel
-- ✅ Insights and analytics (Admin only) — mechanic performance, client stats
-- ✅ Responsive web UI + React Native mobile app
+- Notifications & Alerts — Weekly push notifications (Monday morning & Friday afternoon) prompting mechanics to review and close open orders
+- Overdue Criteria & Stats — Clear definition of "not on time" with supporting statistics
+- Date Edited Tracking — Timestamp added and surfaced across relevant views
+- Extended BI & Analytics — Deeper business intelligence beyond the current Insights scope
+- Archive Search & Debug — Search, filter, and inspect closed/archived orders
+- Multi-language Support — Bulgarian localization across the full UI, including catalog lists
+- Per-mechanic Hourly Rates (planned) — Individual rates based on experience and location, replacing the universal rate
 
 ---
 
-## Out of Scope
+## Monorepo Structure
 
-- 🔔 **Notifications** — not in current scope; planned for future development
-- 💰 **Per-mechanic hourly rates** — planned for future (based on experience and location)
+This is an npm workspace monorepo with two packages.
+
+```
+autoops2/                          npm workspace root
+├── package.json                   workspaces config; root dev/build scripts
+├── scripts/
+│   └── patch-zod.js               post-install zod compatibility patch
+│
+├── autoops-web/                   Next.js web app (back-end + admin UI)
+│   ├── src/
+│   │   ├── __tests__/api/         integration tests (Jest)
+│   │   ├── actions/               Server Actions
+│   │   │   ├── auth.ts            login, register
+│   │   │   ├── orders.ts          create/update orders, vehicles, clients, mechanic assignment
+│   │   │   ├── admin.ts           account management
+│   │   │   └── delete.ts          order deletion
+│   │   ├── app/
+│   │   │   ├── (app)/             authenticated routes (JWT middleware-gated)
+│   │   │   │   ├── dashboard/     orders list with status and mechanic controls
+│   │   │   │   ├── orders/        order create + edit forms
+│   │   │   │   ├── catalog/       parts catalog tab
+│   │   │   │   ├── clients/       client create + edit (with vehicle list)
+│   │   │   │   ├── vehicles/      vehicle create + edit
+│   │   │   │   ├── insights/      admin-only analytics
+│   │   │   │   └── admin/         mechanic account management + hourly rate
+│   │   │   ├── (auth)/            public routes
+│   │   │   │   ├── login/
+│   │   │   │   └── register/
+│   │   │   └── api/
+│   │   │       ├── order-form/    typeahead search (vehicles, clients, parts, mechanics)
+│   │   │       ├── suggestions/   general suggestion endpoint
+│   │   │       └── v1/            REST API (auth, orders, catalog, users, settings, docs)
+│   │   ├── components/
+│   │   │   ├── orders/            OrderForm, StatusBadge, MechanicBadge, modals
+│   │   │   └── catalog/           client/vehicle/parts-catalog forms and modals
+│   │   ├── db/
+│   │   │   ├── schema.ts          Drizzle table definitions
+│   │   │   ├── queries.ts         all read queries
+│   │   │   ├── migrations/        SQL migration files (Drizzle Kit)
+│   │   │   ├── seed.ts            base seed (users, clients, vehicles, parts)
+│   │   │   ├── seed-orders.ts     order seed with parts and services
+│   │   │   └── seed-test.ts       test database seed
+│   │   ├── lib/
+│   │   │   ├── session.ts         JWT session helpers (jose)
+│   │   │   ├── api-auth.ts        API auth helpers
+│   │   │   ├── api-catalog.ts     API catalog helpers
+│   │   │   ├── api-orders.ts      API orders helpers
+│   │   │   ├── api-openapi.ts     OpenAPI spec generation
+│   │   │   ├── api-response.ts    response helpers
+│   │   │   └── api-error.ts       error helpers
+│   │   └── middleware.ts          route auth guard
+│   ├── drizzle.config.ts
+│   └── next.config.ts
+│
+└── autoops-mobile/                React Native / Expo mobile app
+    └── src/
+        ├── app/
+        │   ├── (app)/             authenticated routes
+        │   │   ├── orders/        orders list, detail, create, edit
+        │   │   ├── catalog/       clients, parts, and vehicles tabs
+        │   │   └── profile.tsx    user profile
+        │   └── (auth)/
+        │       └── login.tsx
+        ├── components/
+        │   ├── orders/            OrderCard, OrderForm, PartRow, ServiceRow, StatusPicker
+        │   ├── catalog/           CatalogList, client/vehicle/part modals, RowActions
+        │   └── ui/                ConfirmDialog, SearchableSelect, StatusBadge, Toast, …
+        ├── lib/                   API client, auth helpers, types, formatters
+        ├── constants/             theme tokens
+        └── hooks/                 color scheme, session, and theme hooks
+```
