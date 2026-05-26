@@ -16,7 +16,8 @@ Every solution needs a problem — and this one starts with a friend running a l
 | **Stack** | Next.js + Neon DB + Drizzle ORM + Tailwind | React Native + Expo |
 | **Auth** | JWT + bcrypt | Bearer token (JWT) |
 | **Role** | Back-end API + web front-end | Mobile client consuming web API |
-| **Primary use** | Full capabilities | Order processing |
+| **Primary use** | Full capabilities | Order processing focus |
+| **Deploy** | https://autoops2.vercel.app | https://autoops2-mobile.vercel.app |
 
 > The **Web App** is capable to work on Mobile devices with full set of capabilities.
 
