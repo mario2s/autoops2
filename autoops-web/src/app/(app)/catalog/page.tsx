@@ -87,63 +87,143 @@ export default async function CatalogPage({
     total = result.total;
 
     content = (
-      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_40px]' : 'grid-cols-[1fr_150px_220px_80px]'}`}>
-          {['Name', 'Phone', 'Email', 'Orders', ...(isAdmin ? [''] : [])].map((col, i) => (
-            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
-          ))}
+      <>
+        {/* Desktop table */}
+        <div className="hidden sm:block rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+          <div className={`grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_40px]' : 'grid-cols-[1fr_150px_220px_80px]'}`}>
+            {['Name', 'Phone', 'Email', 'Orders', ...(isAdmin ? [''] : [])].map((col, i) => (
+              <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
+            ))}
+          </div>
+          {result.clients.length === 0 ? (
+            <EmptyState message="No clients found" />
+          ) : (
+            result.clients.map((client) => (
+              <div
+                key={client.id}
+                className={`relative grid gap-3 items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'grid-cols-[1fr_150px_220px_80px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'grid-cols-[1fr_150px_220px_80px]'}`}
+              >
+                {isAdmin && <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />}
+                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">{client.name}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.phone ?? '—'}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.email ?? '—'}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.orderCount}</div>
+                {isAdmin && <div className="relative z-10"><DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" /></div>}
+              </div>
+            ))
+          )}
         </div>
+
+        {/* Mobile cards */}
         {result.clients.length === 0 ? (
-          <EmptyState message="No clients found" />
+          <div className="sm:hidden rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+            <EmptyState message="No clients found" />
+          </div>
         ) : (
-          result.clients.map((client) => (
-            <div
-              key={client.id}
-              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
-            >
-              {isAdmin && <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />}
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">{client.name}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.phone ?? '—'}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.email ?? '—'}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.orderCount}</div>
-              {isAdmin && <div className="relative z-10"><DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" /></div>}
-            </div>
-          ))
+          <div className="sm:hidden flex flex-col gap-2">
+            {result.clients.map((client) => (
+              <div
+                key={client.id}
+                className="relative rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-50 dark:bg-zinc-900"
+              >
+                {isAdmin && <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />}
+                <div className="flex items-start justify-between px-4 pt-3 pb-2.5">
+                  <div>
+                    <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 pointer-events-none leading-tight">{client.name}</div>
+                    <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 pointer-events-none">
+                      {[client.phone, client.email].filter(Boolean).join(' · ') || '—'}
+                    </div>
+                  </div>
+                  {isAdmin && (
+                    <div className="relative z-10 -mt-1 -mr-2 shrink-0">
+                      <DeleteButton action={deleteClientAction.bind(null, client.id)} label="client" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center border-t border-zinc-200 dark:border-zinc-700/60 px-4 py-2.5">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 pointer-events-none">
+                    {client.orderCount} {client.orderCount === 1 ? 'order' : 'orders'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </div>
+      </>
     );
   } else {
     const result = await getVehiclesPage({ search, page, pageSize: PAGE_SIZE });
     total = result.total;
 
     content = (
-      <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
-        <div className={`hidden sm:grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_180px_160px_40px]' : 'grid-cols-[1fr_180px_160px]'}`}>
-          {['Plate / Description', 'Client', 'Make / Model', ...(isAdmin ? [''] : [])].map((col, i) => (
-            <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
-          ))}
+      <>
+        {/* Desktop table */}
+        <div className="hidden sm:block rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+          <div className={`grid gap-3 px-5 py-3 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 ${isAdmin ? 'grid-cols-[1fr_180px_160px_40px]' : 'grid-cols-[1fr_180px_160px]'}`}>
+            {['Plate / Description', 'Client', 'Make / Model', ...(isAdmin ? [''] : [])].map((col, i) => (
+              <span key={i} className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{col}</span>
+            ))}
+          </div>
+          {result.vehicles.length === 0 ? (
+            <EmptyState message="No vehicles found" />
+          ) : (
+            result.vehicles.map((v) => (
+              <div
+                key={v.id}
+                className={`relative grid gap-3 items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'grid-cols-[1fr_180px_160px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'grid-cols-[1fr_180px_160px]'}`}
+              >
+                {isAdmin && <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />}
+                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">
+                  {v.licensePlate ?? v.description}
+                </div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{v.clientName}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">
+                  {[v.make, v.model].filter(Boolean).join(' ') || '—'}
+                </div>
+                {isAdmin && <div className="relative z-10"><DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" /></div>}
+              </div>
+            ))
+          )}
         </div>
+
+        {/* Mobile cards */}
         {result.vehicles.length === 0 ? (
-          <EmptyState message="No vehicles found" />
+          <div className="sm:hidden rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+            <EmptyState message="No vehicles found" />
+          </div>
         ) : (
-          result.vehicles.map((v) => (
-            <div
-              key={v.id}
-              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'sm:grid-cols-[1fr_180px_160px]'}`}
-            >
-              {isAdmin && <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />}
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">
-                {v.licensePlate ?? v.description}
+          <div className="sm:hidden flex flex-col gap-2">
+            {result.vehicles.map((v) => (
+              <div
+                key={v.id}
+                className="relative rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-50 dark:bg-zinc-900"
+              >
+                {isAdmin && <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />}
+                <div className="flex items-start justify-between px-4 pt-3 pb-2.5">
+                  <div>
+                    <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 pointer-events-none leading-tight">
+                      {v.licensePlate ?? v.description}
+                    </div>
+                    <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 pointer-events-none">
+                      {v.clientName}
+                    </div>
+                  </div>
+                  {isAdmin && (
+                    <div className="relative z-10 -mt-1 -mr-2 shrink-0">
+                      <DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center border-t border-zinc-200 dark:border-zinc-700/60 px-4 py-2.5">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 pointer-events-none">
+                    {[v.make, v.model].filter(Boolean).join(' ') || '—'}
+                  </span>
+                </div>
               </div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{v.clientName}</div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">
-                {[v.make, v.model].filter(Boolean).join(' ') || '—'}
-              </div>
-              {isAdmin && <div className="relative z-10"><DeleteButton action={deleteVehicleAction.bind(null, v.id)} label="vehicle" /></div>}
-            </div>
-          ))
+            ))}
+          </div>
         )}
-      </div>
+      </>
     );
   }
 
