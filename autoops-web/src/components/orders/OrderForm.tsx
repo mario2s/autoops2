@@ -1064,7 +1064,7 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           <button
             type="button"
             onClick={() => onChange({ costType: 'hourly' })}
-            className={`flex-1 px-2 py-1.5 text-sm rounded-l-md border border-r-0 transition-colors ${
+            className={`flex-1 px-2 py-2 text-xs rounded-l-md border border-r-0 transition-colors ${
               hourly
                 ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium border-zinc-900 dark:border-zinc-50'
                 : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
@@ -1075,7 +1075,7 @@ function ServiceRowInput({ row, onChange, onRemove, rateReadOnly }: ServiceRowIn
           <button
             type="button"
             onClick={() => onChange({ costType: 'fixed' })}
-            className={`flex-1 px-2 py-1.5 text-sm rounded-r-md border transition-colors ${
+            className={`flex-1 px-2 py-2 text-xs rounded-r-md border transition-colors ${
               !hourly
                 ? 'bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-medium border-zinc-900 dark:border-zinc-50'
                 : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
