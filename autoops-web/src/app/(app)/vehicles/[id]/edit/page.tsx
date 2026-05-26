@@ -9,6 +9,7 @@ import EditVehicleForm from '@/components/catalog/EditVehicleForm';
 export default async function EditVehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) redirect('/login');
+  if (session.role !== 'admin') redirect('/catalog?tab=vehicles');
 
   const { id } = await params;
   const [vehicle, unknownClientRow] = await Promise.all([

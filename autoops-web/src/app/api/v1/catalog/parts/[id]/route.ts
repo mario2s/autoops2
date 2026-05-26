@@ -50,7 +50,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    await validateApiRequest(request);
+    const { user } = await validateApiRequest(request);
+    requireAdmin(user);
     const { id } = await params;
     await loadPart(id);
 

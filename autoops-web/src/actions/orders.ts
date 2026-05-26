@@ -207,6 +207,7 @@ export async function updateClientAction(
 ): Promise<{ success: true } | { error: string }> {
   const session = await getSession();
   if (!session) return { error: 'Unauthorized' };
+  if (session.role !== 'admin') return { error: 'Unauthorized' };
   if (!data.name.trim()) return { error: 'Name is required' };
 
   try {
@@ -233,6 +234,7 @@ export async function updateVehicleAction(
 ): Promise<{ success: true } | { error: string }> {
   const session = await getSession();
   if (!session) return { error: 'Unauthorized' };
+  if (session.role !== 'admin') return { error: 'Unauthorized' };
 
   if (!data.plate.trim() && !data.description.trim()) {
     return { error: 'License plate or description is required' };
@@ -293,6 +295,7 @@ export async function assignVehicleToClientAction(
 ): Promise<{ success: true } | { error: string }> {
   const session = await getSession();
   if (!session) return { error: 'Unauthorized' };
+  if (session.role !== 'admin') return { error: 'Unauthorized' };
 
   try {
     await db

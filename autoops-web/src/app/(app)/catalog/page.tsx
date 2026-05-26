@@ -99,9 +99,9 @@ export default async function CatalogPage({
           result.clients.map((client) => (
             <div
               key={client.id}
-              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_40px]' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
+              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_150px_220px_80px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'sm:grid-cols-[1fr_150px_220px_80px]'}`}
             >
-              <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />
+              {isAdmin && <Link href={`/clients/${client.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${client.name}`} />}
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">{client.name}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.phone ?? '—'}</div>
               <div className="text-sm text-zinc-500 dark:text-zinc-400 pointer-events-none">{client.email ?? '—'}</div>
@@ -129,9 +129,9 @@ export default async function CatalogPage({
           result.vehicles.map((v) => (
             <div
               key={v.id}
-              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_40px]' : 'sm:grid-cols-[1fr_180px_160px]'}`}
+              className={`relative grid grid-cols-1 gap-1 sm:gap-3 sm:items-center px-5 py-4 border-b border-zinc-200 dark:border-zinc-700/60 last:border-0 transition-colors ${isAdmin ? 'sm:grid-cols-[1fr_180px_160px_40px] hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer' : 'sm:grid-cols-[1fr_180px_160px]'}`}
             >
-              <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />
+              {isAdmin && <Link href={`/vehicles/${v.id}/edit`} className="absolute inset-0 z-0" aria-label={`Edit ${v.licensePlate ?? v.description}`} />}
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50 pointer-events-none">
                 {v.licensePlate ?? v.description}
               </div>

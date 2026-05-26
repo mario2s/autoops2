@@ -9,6 +9,7 @@ import EditClientForm from '@/components/catalog/EditClientForm';
 export default async function EditClientPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) redirect('/login');
+  if (session.role !== 'admin') redirect('/catalog?tab=clients');
 
   const { id } = await params;
 
