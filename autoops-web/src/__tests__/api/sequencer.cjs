@@ -1,6 +1,6 @@
 const Sequencer = require('@jest/test-sequencer').default;
 
-const ORDER = ['auth', 'catalog', 'clients', 'vehicles', 'orders', 'users', 'catalog-delete'];
+const ORDER = ['auth', 'catalog-roles', 'catalog', 'clients', 'vehicles', 'orders', 'users', 'catalog-delete'];
 
 function rank(testPath) {
   for (let i = 0; i < ORDER.length; i++) {

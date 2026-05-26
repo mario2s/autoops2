@@ -75,10 +75,19 @@ describe('catalog/parts', () => {
     expect(res.body.data.id).toBe(context.partId);
   });
 
-  test('CAT-PARTS-09 — Rename part (any authenticated user)', async () => {
+  test('CAT-PARTS-09 — Rename part (mechanic — forbidden)', async () => {
     const res = await apiRequest(`/api/v1/catalog/parts/${context.partId}`, {
       method: 'PATCH',
       token: context.mechanicToken,
+      body: { name: 'Test Brake Pads — Front (renamed)' },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  test('CAT-PARTS-09b — Rename part (admin)', async () => {
+    const res = await apiRequest(`/api/v1/catalog/parts/${context.partId}`, {
+      method: 'PATCH',
+      token: context.adminToken,
       body: { name: 'Test Brake Pads — Front (renamed)' },
     });
     expect(res.status).toBe(200);
