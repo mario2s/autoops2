@@ -76,92 +76,106 @@ export default function MechanicsTable({ mechanics }: { mechanics: Mechanic[] })
   }
 
   return (
-    <div className="rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
-      {/* Column headers — desktop only */}
-      <div className="hidden md:grid grid-cols-[1fr_140px_100px_120px_190px] gap-4 px-5 py-2.5 border-b border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900">
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Mechanic</span>
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Registered</span>
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Orders</span>
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Status</span>
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Actions</span>
+    <>
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+        <div className="grid grid-cols-[1fr_140px_100px_120px_190px] gap-4 px-5 py-2.5 border-b border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Mechanic</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Registered</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Orders</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Status</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Actions</span>
+        </div>
+
+        {mechanics.map((mechanic) => {
+          const status = statuses[mechanic.id];
+          const error = errors[mechanic.id];
+          const isLoading = loading === mechanic.id;
+
+          return (
+            <div key={mechanic.id} className="border-b border-zinc-200 dark:border-zinc-700/60 last:border-0">
+              <div className="grid grid-cols-[1fr_140px_100px_120px_190px] gap-x-4 px-5 py-3.5 items-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                <div>
+                  <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{mechanic.name}</div>
+                  <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{mechanic.email}</div>
+                </div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400">{mechanic.createdAt}</div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {status === 'pending' ? '—' : `${mechanic.orderCount} orders`}
+                </div>
+                <div><StatusBadge status={status} /></div>
+                <div className="flex items-center gap-2">
+                  {status === 'pending' && (
+                    <>
+                      <button onClick={() => handleAction(mechanic.id, 'approve')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors">Approve</button>
+                      <button onClick={() => handleAction(mechanic.id, 'reject')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors">Reject</button>
+                    </>
+                  )}
+                  {status === 'active' && (
+                    <button onClick={() => handleAction(mechanic.id, 'deactivate')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors">Deactivate</button>
+                  )}
+                  {status === 'inactive' && (
+                    <button onClick={() => handleAction(mechanic.id, 'activate')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 disabled:opacity-50 transition-colors">Activate</button>
+                  )}
+                </div>
+              </div>
+              {error && (
+                <div className="px-5 pb-3 -mt-1 text-xs text-red-500 dark:text-red-400">{error}</div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {mechanics.map((mechanic) => {
-        const status = statuses[mechanic.id];
-        const error = errors[mechanic.id];
-        const isLoading = loading === mechanic.id;
+      {/* Mobile cards */}
+      <div className="md:hidden flex flex-col gap-2">
+        {mechanics.map((mechanic) => {
+          const status = statuses[mechanic.id];
+          const error = errors[mechanic.id];
+          const isLoading = loading === mechanic.id;
 
-        return (
-          <div key={mechanic.id} className="border-b border-zinc-200 dark:border-zinc-700/60 last:border-0">
-            <div className="flex flex-col md:grid md:grid-cols-[1fr_140px_100px_120px_190px] gap-x-4 gap-y-2 px-5 py-3.5 md:items-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
-              {/* Name + email */}
-              <div>
-                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{mechanic.name}</div>
-                <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{mechanic.email}</div>
+          return (
+            <div key={mechanic.id} className="rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-50 dark:bg-zinc-900">
+              {/* Top: name + email | status badge */}
+              <div className="flex items-start justify-between px-4 pt-3 pb-2.5">
+                <div>
+                  <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 leading-tight">{mechanic.name}</div>
+                  <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{mechanic.email}</div>
+                </div>
+                <div className="shrink-0 ml-3 mt-0.5">
+                  <StatusBadge status={status} />
+                </div>
               </div>
 
-              {/* Registered */}
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                <span className="md:hidden text-zinc-400 dark:text-zinc-500">Registered: </span>
-                {mechanic.createdAt}
+              {/* Bottom strip: date + orders | action buttons */}
+              <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700/60 px-4 py-2.5">
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  {mechanic.createdAt}
+                  {status !== 'pending' && ` · ${mechanic.orderCount} orders`}
+                </span>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  {status === 'pending' && (
+                    <>
+                      <button onClick={() => handleAction(mechanic.id, 'approve')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors">Approve</button>
+                      <button onClick={() => handleAction(mechanic.id, 'reject')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors">Reject</button>
+                    </>
+                  )}
+                  {status === 'active' && (
+                    <button onClick={() => handleAction(mechanic.id, 'deactivate')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors">Deactivate</button>
+                  )}
+                  {status === 'inactive' && (
+                    <button onClick={() => handleAction(mechanic.id, 'activate')} disabled={isLoading} className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 disabled:opacity-50 transition-colors">Activate</button>
+                  )}
+                </div>
               </div>
 
-              {/* Orders */}
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                {status === 'pending' ? '—' : `${mechanic.orderCount} orders`}
-              </div>
-
-              {/* Status badge */}
-              <div>
-                <StatusBadge status={status} />
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex items-center gap-2">
-                {status === 'pending' && (
-                  <>
-                    <button
-                      onClick={() => handleAction(mechanic.id, 'approve')}
-                      disabled={isLoading}
-                      className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleAction(mechanic.id, 'reject')}
-                      disabled={isLoading}
-                      className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
-                    >
-                      Reject
-                    </button>
-                  </>
-                )}
-                {status === 'active' && (
-                  <button
-                    onClick={() => handleAction(mechanic.id, 'deactivate')}
-                    disabled={isLoading}
-                    className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-300 dark:hover:border-red-800 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
-                  >
-                    Deactivate
-                  </button>
-                )}
-                {status === 'inactive' && (
-                  <button
-                    onClick={() => handleAction(mechanic.id, 'activate')}
-                    disabled={isLoading}
-                    className="text-xs px-3 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 disabled:opacity-50 transition-colors"
-                  >
-                    Activate
-                  </button>
-                )}
-              </div>
+              {error && (
+                <div className="px-4 pb-3 -mt-1 text-xs text-red-500 dark:text-red-400">{error}</div>
+              )}
             </div>
-            {error && (
-              <div className="px-5 pb-3 -mt-1 text-xs text-red-500 dark:text-red-400">{error}</div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
