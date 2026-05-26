@@ -115,6 +115,7 @@ Accessible to **Admins only**.
 - Archive Search & Debug — Search, filter, and inspect closed/archived orders
 - Multi-language Support — Bulgarian localization across the full UI, including catalog lists
 - Per-mechanic Hourly Rates (planned) — Individual rates based on experience and location, replacing the universal rate
+- Implement automated database / file storage backup
 
 ---
 

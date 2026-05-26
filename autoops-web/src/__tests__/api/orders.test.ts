@@ -202,4 +202,67 @@ describe('orders', () => {
     });
     expect(res.status).toBe(403);
   });
+
+  test('ORD-18 — Update order with empty services array (clears services)', async () => {
+    const res = await apiRequest(`/api/v1/orders/${context.orderId}`, {
+      method: 'PATCH',
+      token: context.mechanic2Token,
+      body: { services: [] },
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.services).toHaveLength(0);
+    expect(res.body.data.totals.services).toBe(0);
+  });
+
+  test('ORD-19 — Update order with empty parts array (clears parts, then restores)', async () => {
+    const cleared = await apiRequest(`/api/v1/orders/${context.orderId}`, {
+      method: 'PATCH',
+      token: context.mechanic2Token,
+      body: { parts: [] },
+    });
+    expect(cleared.status).toBe(200);
+    expect(cleared.body.data.parts).toHaveLength(0);
+    expect(cleared.body.data.totals.parts).toBe(0);
+
+    // Restore so CAT-DEL-01 still observes PART_IN_USE.
+    const restored = await apiRequest(`/api/v1/orders/${context.orderId}`, {
+      method: 'PATCH',
+      token: context.mechanic2Token,
+      body: {
+        parts: [{ catalogPartId: context.partId, qty: 1, unitPrice: 50.00 }],
+      },
+    });
+    expect(restored.status).toBe(200);
+    expect(restored.body.data.parts).toHaveLength(1);
+  });
+
+  test('ORD-20 — Create order with hourly service missing hours', async () => {
+    const res = await apiRequest('/api/v1/orders', {
+      method: 'POST',
+      token: context.mechanicToken,
+      body: {
+        vehicleId: context.vehicleId,
+        clientId: context.clientId,
+        deadline: futureIso(7),
+        services: [{ description: 'No hours', costType: 'hourly', rate: 45.00 }],
+      },
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('INVALID_SERVICE');
+  });
+
+  test('ORD-21 — Create order with fixed service missing fixedAmount', async () => {
+    const res = await apiRequest('/api/v1/orders', {
+      method: 'POST',
+      token: context.mechanicToken,
+      body: {
+        vehicleId: context.vehicleId,
+        clientId: context.clientId,
+        deadline: futureIso(7),
+        services: [{ description: 'No amount', costType: 'fixed' }],
+      },
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('INVALID_SERVICE');
+  });
 });

@@ -9,7 +9,7 @@ describe('catalog/clients', () => {
       method: 'POST',
       token: context.mechanicToken,
       body: {
-        name: 'Test Client',
+        name: 'Test Suite Client (autoops-test)',
         phone: '+359 88 000 0000',
         email: 'test@client.com',
         notes: 'Test note',
@@ -17,7 +17,7 @@ describe('catalog/clients', () => {
     });
     expect(res.status).toBe(201);
     expect(isUuid(res.body.data.id)).toBe(true);
-    expect(res.body.data.name).toBe('Test Client');
+    expect(res.body.data.name).toBe('Test Suite Client (autoops-test)');
     context.clientId = res.body.data.id;
   });
 

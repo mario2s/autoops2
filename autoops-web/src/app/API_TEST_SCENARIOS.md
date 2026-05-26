@@ -168,11 +168,11 @@ Expect: status 403
 ### CAT-CLI-01 — Create a client (mechanic)
 POST /api/v1/catalog/clients
 Auth: mechanicToken
-Body: { "name": "Test Client", "phone": "+359 88 000 0000", "email": "test@client.com", "notes": "Test note" }
+Body: { "name": "Test Suite Client (autoops-test)", "phone": "+359 88 000 0000", "email": "test@client.com", "notes": "Test note" }
 Expect:
 - status 201
 - data.id is UUID
-- data.name === "Test Client"
+- data.name === "Test Suite Client (autoops-test)"
 Action: store data.id as context.clientId
 
 ### CAT-CLI-02 — Create client with missing name
@@ -229,16 +229,16 @@ Expect:
 ### CAT-VEH-01 — Create vehicle with license plate only (mechanic)
 POST /api/v1/catalog/vehicles
 Auth: mechanicToken
-Body: { "licensePlate": "CB 1234 AB", "clientId": context.clientId }
+Body: { "licensePlate": "TEST-CB-1234", "clientId": context.clientId }
 Expect:
 - status 201
-- data.licensePlate === "CB 1234 AB"
+- data.licensePlate === "TEST-CB-1234"
 Action: store data.id as context.vehicleId
 
 ### CAT-VEH-02 — Create vehicle with description only
 POST /api/v1/catalog/vehicles
 Auth: mechanicToken
-Body: { "description": "The red Toyota" }
+Body: { "description": "Test Vehicle — Red Toyota" }
 Expect: status 201
 
 ### CAT-VEH-03 — Create vehicle with no plate and no description
@@ -250,17 +250,17 @@ Expect: status 400
 ### CAT-VEH-04 — Create vehicle with all fields
 POST /api/v1/catalog/vehicles
 Auth: mechanicToken
-Body: { "licensePlate": "PA 9999 ZZ", "description": "Blue VW", "make": "Volkswagen", "model": "Golf", "year": 2020, "vin": "1HGBH41JXMN109186", "clientId": context.clientId }
+Body: { "licensePlate": "TEST-PA-9999", "description": "Test Vehicle — Blue VW", "make": "Volkswagen", "model": "Golf", "year": 2020, "vin": "1HGBH41JXMN109186", "clientId": context.clientId }
 Expect: status 201
 Action: store data.id as context.deletableVehicleId
 
 ### CAT-VEH-05 — Edit vehicle (admin only)
 PATCH /api/v1/catalog/vehicles/:vehicleId
 Auth: adminToken
-Body: { "description": "Updated description" }
+Body: { "description": "Test Vehicle — Updated" }
 Expect:
 - status 200
-- data.description === "Updated description"
+- data.description === "Test Vehicle — Updated"
 
 ### CAT-VEH-06 — Edit vehicle (mechanic — forbidden)
 PATCH /api/v1/catalog/vehicles/:vehicleId
@@ -439,6 +439,53 @@ Auth: mechanicToken
 Body: { "mechanicId": "<some user id>" }
 Expect: status 403
 
+### ORD-18 — Update order with empty services array (clears services)
+PATCH /api/v1/orders/:orderId
+Auth: mechanic2Token (current owner after ORD-16)
+Body: { "services": [] }
+Expect:
+- status 200
+- data.services.length === 0
+- data.totals.services === 0
+
+### ORD-19 — Update order with empty parts array (clears parts, then restores)
+PATCH /api/v1/orders/:orderId
+Auth: mechanic2Token
+Step 1 — clear:
+- Body: { "parts": [] }
+- Expect: status 200, data.parts.length === 0, data.totals.parts === 0
+Step 2 — restore (so CAT-DEL-01 still observes PART_IN_USE):
+- Body: { "parts": [ { "catalogPartId": context.partId, "qty": 1, "unitPrice": 50.00 } ] }
+- Expect: status 200, data.parts.length === 1
+
+### ORD-20 — Create order with hourly service missing hours
+POST /api/v1/orders
+Auth: mechanicToken
+Body:
+{
+  "vehicleId": context.vehicleId,
+  "clientId": context.clientId,
+  "deadline": "<future ISO>",
+  "services": [ { "description": "No hours", "costType": "hourly", "rate": 45.00 } ]
+}
+Expect:
+- status 400
+- error.code === "INVALID_SERVICE"
+
+### ORD-21 — Create order with fixed service missing fixedAmount
+POST /api/v1/orders
+Auth: mechanicToken
+Body:
+{
+  "vehicleId": context.vehicleId,
+  "clientId": context.clientId,
+  "deadline": "<future ISO>",
+  "services": [ { "description": "No amount", "costType": "fixed" } ]
+}
+Expect:
+- status 400
+- error.code === "INVALID_SERVICE"
+
 ---
 
 ## Test File: users.test.ts
@@ -505,11 +552,11 @@ AUTH          9/9    PASS
 CATALOG-PARTS 10/10  PASS
 CLIENTS       8/8    PASS
 VEHICLES      10/10  PASS
-ORDERS        17/17  PASS
+ORDERS        21/21  PASS
 USERS         3/3    PASS
 DELETE-IN-USE 3/3    PASS
 -------------------------
-TOTAL         60/60  PASS
+TOTAL         64/64  PASS
 Duration: Xs
 
 If any test fails, agent prints:

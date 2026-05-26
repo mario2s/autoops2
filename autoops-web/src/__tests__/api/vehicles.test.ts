@@ -6,10 +6,10 @@ describe('catalog/vehicles', () => {
     const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
-      body: { licensePlate: 'CB 1234 AB', clientId: context.clientId },
+      body: { licensePlate: 'TEST-CB-1234', clientId: context.clientId },
     });
     expect(res.status).toBe(201);
-    expect(res.body.data.licensePlate).toBe('CB 1234 AB');
+    expect(res.body.data.licensePlate).toBe('TEST-CB-1234');
     context.vehicleId = res.body.data.id;
   });
 
@@ -17,7 +17,7 @@ describe('catalog/vehicles', () => {
     const res = await apiRequest('/api/v1/catalog/vehicles', {
       method: 'POST',
       token: context.mechanicToken,
-      body: { description: 'The red Toyota' },
+      body: { description: 'Test Vehicle — Red Toyota' },
     });
     expect(res.status).toBe(201);
   });
@@ -36,8 +36,8 @@ describe('catalog/vehicles', () => {
       method: 'POST',
       token: context.mechanicToken,
       body: {
-        licensePlate: 'PA 9999 ZZ',
-        description: 'Blue VW',
+        licensePlate: 'TEST-PA-9999',
+        description: 'Test Vehicle — Blue VW',
         make: 'Volkswagen',
         model: 'Golf',
         year: 2020,
@@ -53,10 +53,10 @@ describe('catalog/vehicles', () => {
     const res = await apiRequest(`/api/v1/catalog/vehicles/${context.vehicleId}`, {
       method: 'PATCH',
       token: context.adminToken,
-      body: { description: 'Updated description' },
+      body: { description: 'Test Vehicle — Updated' },
     });
     expect(res.status).toBe(200);
-    expect(res.body.data.description).toBe('Updated description');
+    expect(res.body.data.description).toBe('Test Vehicle — Updated');
   });
 
   test('CAT-VEH-06 — Edit vehicle (mechanic — forbidden)', async () => {
