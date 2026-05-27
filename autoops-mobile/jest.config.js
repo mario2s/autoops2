@@ -7,6 +7,4 @@ module.exports = {
   moduleNameMapper: {
     '^expo-secure-store$': '<rootDir>/src/__mocks__/expo-secure-store.ts',
   },
-  resetMocks: false,
-  clearMocks: false,
 };
