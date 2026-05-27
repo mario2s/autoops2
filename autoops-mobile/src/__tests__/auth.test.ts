@@ -1,10 +1,3 @@
-jest.mock('expo-secure-store', () => ({
-  getItemAsync: jest.fn(),
-  setItemAsync: jest.fn(),
-  deleteItemAsync: jest.fn(),
-}));
-jest.mock('react-native', () => ({ Platform: { OS: 'ios' } }));
-
 import { decodeToken, isExpired } from '@/lib/auth';
 
 describe('auth', () => {
