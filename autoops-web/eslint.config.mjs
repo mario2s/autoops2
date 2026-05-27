@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Existing API integration tests — leave untouched per task instructions
+    "src/__tests__/api/**",
   ]),
 ]);
 
