@@ -107,15 +107,40 @@ export default async function InsightsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
-          <div className="text-xs font-medium uppercase tracking-wider mb-2" style={{ color: '#ec4899' }}>
-            Total Orders
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4 flex gap-5">
+          {/* Total Orders */}
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-medium uppercase tracking-wider mb-2" style={{ color: '#ec4899' }}>
+              Total Orders
+            </div>
+            <div className="text-3xl font-bold tracking-tight" style={{ color: '#ec4899' }}>
+              {data.totalOrders.toLocaleString('en-US')}
+            </div>
+            <div className="text-xs mt-1.5" style={{ color: '#ec4899' }}>
+              For the EXAM Scalability Requirement
+            </div>
           </div>
-          <div className="text-3xl font-bold tracking-tight" style={{ color: '#ec4899' }}>
-            {data.totalOrders.toLocaleString('en-US')}
-          </div>
-          <div className="text-xs mt-1.5" style={{ color: '#ec4899' }}>
-            For the EXAM Scalability Requirement
+
+          {/* Catalog stats */}
+          <div className="flex flex-col justify-center gap-2.5 border-l border-zinc-200 dark:border-zinc-700 pl-5 shrink-0">
+            <div>
+              <div className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Parts</div>
+              <div className="text-xl font-semibold text-zinc-700 dark:text-zinc-300 tabular-nums">
+                {data.totalParts.toLocaleString('en-US')}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Clients</div>
+              <div className="text-xl font-semibold text-zinc-700 dark:text-zinc-300 tabular-nums">
+                {data.totalClients.toLocaleString('en-US')}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Vehicles</div>
+              <div className="text-xl font-semibold text-zinc-700 dark:text-zinc-300 tabular-nums">
+                {data.totalVehicles.toLocaleString('en-US')}
+              </div>
+            </div>
           </div>
         </div>
       </div>

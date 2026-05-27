@@ -316,6 +316,9 @@ export type InsightsData = {
   ytdRevenue: number;
   backlogRevenue: number;
   totalOrders: number;
+  totalParts: number;
+  totalClients: number;
+  totalVehicles: number;
   topClients: InsightsTopItem[];
   topServices: InsightsTopItem[];
   topParts: InsightsTopItem[];
@@ -347,6 +350,18 @@ export async function getInsightsData(): Promise<InsightsData> {
   const [totalOrdersRow] = await db
     .select({ count: sql<string>`COUNT(*)` })
     .from(orders);
+
+  const [totalPartsRow] = await db
+    .select({ count: sql<string>`COUNT(*)` })
+    .from(parts_catalog);
+
+  const [totalClientsRow] = await db
+    .select({ count: sql<string>`COUNT(*)` })
+    .from(clients);
+
+  const [totalVehiclesRow] = await db
+    .select({ count: sql<string>`COUNT(*)` })
+    .from(vehicles);
 
   const clientRevenue = sql<string>`SUM(${orderTotalExpr})`;
   const topClientsRows = await db
@@ -385,6 +400,9 @@ export async function getInsightsData(): Promise<InsightsData> {
     ytdRevenue: parseFloat(ytdRow.total),
     backlogRevenue: parseFloat(backlogRow.total),
     totalOrders: parseInt(totalOrdersRow.count, 10),
+    totalParts: parseInt(totalPartsRow.count, 10),
+    totalClients: parseInt(totalClientsRow.count, 10),
+    totalVehicles: parseInt(totalVehiclesRow.count, 10),
     topClients: topClientsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
     topServices: topServicesRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
     topParts: topPartsRows.map((r) => ({ name: r.name, revenue: parseFloat(r.revenue) })),
