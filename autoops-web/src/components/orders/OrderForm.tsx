@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { SessionUser } from '@/lib/session';
 import type { OrderForEdit } from '@/db/queries';
 import type { VehicleData } from '@/actions/orders';
+import { computeOrderTotals } from '@/lib/order-totals';
 import {
   createOrderAction,
   updateOrderAction,
@@ -316,9 +317,17 @@ export default function OrderForm({
   const [successToast, setSuccessToast] = useState(false);
 
   // ── Totals
-  const partsSubtotal = parts.reduce((sum, r) => sum + partTotal(r), 0);
-  const servicesSubtotal = services.reduce((sum, r) => sum + serviceTotal(r), 0);
-  const grandTotal = partsSubtotal + servicesSubtotal;
+  const totals = computeOrderTotals(
+    parts.map((p) => ({ qty: parseFloat(p.qty) || 0, unitPrice: parseFloat(p.unitPrice) || 0 })),
+    services.map((s) =>
+      s.costType === 'hourly'
+        ? { costType: 'hourly' as const, hours: parseFloat(s.hours) || 0, rate: parseFloat(s.rate) || 0 }
+        : { costType: 'fixed' as const, fixedAmount: parseFloat(s.fixedAmount) || 0 },
+    ),
+  );
+  const partsSubtotal = totals.parts;
+  const servicesSubtotal = totals.services;
+  const grandTotal = totals.grand;
 
   // ── Vehicle handlers
   function handleVehicleChange(val: string) {

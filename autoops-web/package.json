@@ -13,7 +13,9 @@
     "db:seed": "tsx --env-file=.env src/db/seed.ts",
     "db:seed-orders": "tsx --env-file=.env src/db/seed-orders.ts",
     "db:seed:test": "tsx --env-file=.env src/db/seed-test.ts",
-    "test:api": "jest --runInBand"
+    "test:api": "jest --runInBand",
+    "test:unit": "jest -c jest.unit.config.ts",
+    "test": "jest -c jest.unit.config.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -31,6 +33,9 @@
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
@@ -40,9 +45,12 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.11",
+    "ts-node": "^10.9.2",
     "tsx": "^4.22.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.10"
   }
 }

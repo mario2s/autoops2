@@ -1,3 +1,5 @@
+![CI](https://github.com/mario2s/autoops2/actions/workflows/ci.yml/badge.svg)
+
 # AutoOps
 
 Every solution needs a problem — and this one starts with a friend running a local car repair shop with no formal tracking system in place. This app was built to fix that:
@@ -20,6 +22,23 @@ Every solution needs a problem — and this one starts with a friend running a l
 | **Deploy** | https://autoops2.vercel.app | https://autoops2-mobile.vercel.app |
 
 > The **Web App** is capable to work on Mobile devices with full set of capabilities.
+
+## Testing
+
+Automated tests across all three layers, run in CI on every push/PR.
+
+| Layer | Location | Command |
+|---|---|---|
+| Back-end unit (parsing, auth guards, JWT, cost math) | `autoops-web/src/__tests__/unit` | `npm run test:unit -w autoops-web` |
+| Web component (jsdom) | `autoops-web/src/__tests__/components` | `npm run test:unit -w autoops-web` |
+| Back-end API integration (~93+ tests, live server + DB) | `autoops-web/src/__tests__/api` | `npm run test:api -w autoops-web` |
+| Web end-to-end (Playwright) | `autoops-web/e2e` | `npm run test:e2e -w autoops-web` |
+| Mobile unit (jest-expo) | `autoops-mobile/src/__tests__` | `npm test -w autoops-mobile` |
+
+CI runs unit/component/mobile on every push; integration + E2E run when a test
+database secret is configured. See `.github/workflows/ci.yml`.
+
+---
 
 ## Order Statuses
 

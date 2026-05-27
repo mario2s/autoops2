@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # ---- Always runs: no database, no server. Fast feedback. ----
+  unit:
+    name: Unit, component & mobile tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Lint (web)
+        run: npm run lint -w autoops-web
+      - name: Web unit + component tests
+        run: npm run test:unit -w autoops-web
+        env:
+          JWT_SECRET: ci-test-secret
+      - name: Mobile unit tests
+        run: npm test -w autoops-mobile
+
+  # ---- Gated: needs a real database (Neon test branch). ----
+  integration-e2e:
+    name: API integration + E2E
+    runs-on: ubuntu-latest
+    needs: unit
+    # Only run when the DATABASE_URL secret is configured (e.g. on main / trusted PRs)
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
+    env:
+      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Skip if no DB secret
+        id: guard
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "No TEST_DATABASE_URL secret set — skipping integration/E2E."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply migrations
+        if: steps.guard.outputs.run == 'true'
+        run: npm run db:migrate -w autoops-web
+
+      - name: Seed test data
+        if: steps.guard.outputs.run == 'true'
+        run: npm run db:seed:test -w autoops-web
+
+      - name: Build & start web app
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          npm run build -w autoops-web
+          npm run start -w autoops-web &
+          npx wait-on http://localhost:3000 -t 120000
+
+      - name: API integration tests
+        if: steps.guard.outputs.run == 'true'
+        run: npm run test:api -w autoops-web
+        env:
+          TEST_API_URL: http://localhost:3000
+
+      - name: Install Playwright
+        if: steps.guard.outputs.run == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.guard.outputs.run == 'true'
+        run: npm run test:e2e -w autoops-web
+        env:
+          E2E_BASE_URL: http://localhost:3000
