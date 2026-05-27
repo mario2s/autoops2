@@ -373,7 +373,6 @@ export default function OrderForm({
 
   // ── Service handlers
   function addService() {
-    setParts; // just touch to avoid lint warning
     setServices((prev) => [
       ...prev,
       { key: uid(), description: '', costType: 'fixed', hours: '', rate: String(hourlyRate), fixedAmount: '' },
